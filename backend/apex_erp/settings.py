@@ -1,4 +1,5 @@
 import os
+import dj_database_url
 from pathlib import Path
 from datetime import timedelta
 from dotenv import load_dotenv
@@ -109,7 +110,8 @@ DATABASES = {
         'CONN_HEALTH_CHECKS': True,
     }
 }
-
+if os.environ.get('DATABASE_URL'):
+    DATABASES['default'] = dj_database_url.config(default=os.environ['DATABASE_URL'])
 # Cache
 CACHES = {
     'default': {

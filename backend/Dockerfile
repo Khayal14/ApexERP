@@ -21,4 +21,4 @@ RUN mkdir -p /app/staticfiles /app/media /app/ml_models /app/logs
 
 EXPOSE 8000
 
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "apex_erp.asgi:application"]
+CMD sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p ${PORT:-8000} apex_erp.asgi:application"
