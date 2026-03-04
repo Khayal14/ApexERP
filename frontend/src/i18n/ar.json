@@ -1,0 +1,46 @@
+{
+  "app": { "name": "ApexERP", "tagline": "نظام تخطيط موارد المؤسسة" },
+  "nav": {
+    "dashboard": "لوحة التحكم", "finance": "المالية", "hr": "الموارد البشرية",
+    "crm": "إدارة العلاقات", "inventory": "المخزون", "sales": "المبيعات",
+    "projects": "المشاريع", "manufacturing": "التصنيع",
+    "marketing": "التسويق", "analytics": "التحليلات",
+    "ecommerce": "التجارة الإلكترونية", "settings": "الإعدادات"
+  },
+  "auth": {
+    "login": "تسجيل الدخول", "logout": "تسجيل الخروج", "email": "البريد الإلكتروني",
+    "password": "كلمة المرور", "remember": "تذكرني", "forgot": "نسيت كلمة المرور؟",
+    "welcome": "مرحباً بعودتك"
+  },
+  "common": {
+    "save": "حفظ", "cancel": "إلغاء", "delete": "حذف", "edit": "تعديل",
+    "create": "إنشاء", "search": "بحث", "filter": "تصفية", "export": "تصدير",
+    "import": "استيراد", "loading": "جاري التحميل...", "no_data": "لا توجد بيانات",
+    "confirm": "تأكيد", "back": "رجوع", "next": "التالي", "actions": "إجراءات",
+    "status": "الحالة", "date": "التاريخ", "amount": "المبلغ", "total": "الإجمالي",
+    "name": "الاسم", "email": "البريد الإلكتروني", "phone": "الهاتف", "address": "العنوان",
+    "notes": "ملاحظات", "description": "الوصف", "active": "نشط",
+    "inactive": "غير نشط", "all": "الكل", "view": "عرض", "download": "تحميل",
+    "notifications": "الإشعارات", "profile": "الملف الشخصي", "dark_mode": "الوضع الداكن",
+    "light_mode": "الوضع الفاتح", "language": "اللغة"
+  },
+  "dashboard": {
+    "title": "لوحة التحكم", "revenue": "الإيرادات", "orders": "الطلبات",
+    "employees": "الموظفون", "deals": "الصفقات المفتوحة", "pipeline": "قيمة خط الأنابيب",
+    "this_month": "هذا الشهر", "growth": "النمو"
+  },
+  "finance": {
+    "title": "المالية والمحاسبة", "invoices": "الفواتير", "payments": "المدفوعات",
+    "expenses": "المصروفات", "budgets": "الميزانيات", "accounts": "شجرة الحسابات",
+    "journal": "القيود اليومية", "total_revenue": "إجمالي الإيرادات",
+    "outstanding": "المستحقات", "overdue": "المتأخرة"
+  },
+  "hr": {
+    "title": "الموارد البشرية", "employees": "الموظفون", "payroll": "الرواتب",
+    "leave": "إدارة الإجازات", "attendance": "الحضور", "recruitment": "التوظيف"
+  },
+  "crm": {
+    "title": "إدارة علاقات العملاء", "contacts": "جهات الاتصال", "deals": "الصفقات",
+    "pipeline": "خط الأنابيب", "activities": "الأنشطة", "campaigns": "الحملات"
+  }
+}

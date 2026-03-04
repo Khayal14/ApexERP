@@ -1,0 +1,20 @@
+import React from 'react';
+import { useTranslation } from 'react-i18next';
+import Card from '../components/common/Card';
+import Button from '../components/common/Button';
+
+export default function MarketingPage() {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-6 fade-in">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{t('nav.marketing')}</h1>
+        <Button>New Campaign</Button>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Card title="Active Campaigns"><p className="text-gray-500">Campaign overview</p></Card>
+        <Card title="Email Performance"><p className="text-gray-500">Email metrics</p></Card>
+      </div>
+    </div>
+  );
+}

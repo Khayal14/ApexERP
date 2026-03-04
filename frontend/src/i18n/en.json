@@ -1,0 +1,46 @@
+{
+  "app": { "name": "ApexERP", "tagline": "Enterprise Resource Planning" },
+  "nav": {
+    "dashboard": "Dashboard", "finance": "Finance", "hr": "Human Resources",
+    "crm": "CRM", "inventory": "Inventory", "sales": "Sales",
+    "projects": "Projects", "manufacturing": "Manufacturing",
+    "marketing": "Marketing", "analytics": "Analytics",
+    "ecommerce": "E-Commerce", "settings": "Settings"
+  },
+  "auth": {
+    "login": "Sign In", "logout": "Sign Out", "email": "Email Address",
+    "password": "Password", "remember": "Remember me", "forgot": "Forgot password?",
+    "welcome": "Welcome back"
+  },
+  "common": {
+    "save": "Save", "cancel": "Cancel", "delete": "Delete", "edit": "Edit",
+    "create": "Create", "search": "Search", "filter": "Filter", "export": "Export",
+    "import": "Import", "loading": "Loading...", "no_data": "No data available",
+    "confirm": "Confirm", "back": "Back", "next": "Next", "actions": "Actions",
+    "status": "Status", "date": "Date", "amount": "Amount", "total": "Total",
+    "name": "Name", "email": "Email", "phone": "Phone", "address": "Address",
+    "notes": "Notes", "description": "Description", "active": "Active",
+    "inactive": "Inactive", "all": "All", "view": "View", "download": "Download",
+    "notifications": "Notifications", "profile": "Profile", "dark_mode": "Dark Mode",
+    "light_mode": "Light Mode", "language": "Language"
+  },
+  "dashboard": {
+    "title": "Dashboard", "revenue": "Revenue", "orders": "Orders",
+    "employees": "Employees", "deals": "Open Deals", "pipeline": "Pipeline Value",
+    "this_month": "This Month", "growth": "Growth"
+  },
+  "finance": {
+    "title": "Finance & Accounting", "invoices": "Invoices", "payments": "Payments",
+    "expenses": "Expenses", "budgets": "Budgets", "accounts": "Chart of Accounts",
+    "journal": "Journal Entries", "total_revenue": "Total Revenue",
+    "outstanding": "Outstanding", "overdue": "Overdue"
+  },
+  "hr": {
+    "title": "Human Resources", "employees": "Employees", "payroll": "Payroll",
+    "leave": "Leave Management", "attendance": "Attendance", "recruitment": "Recruitment"
+  },
+  "crm": {
+    "title": "CRM", "contacts": "Contacts", "deals": "Deals",
+    "pipeline": "Pipeline", "activities": "Activities", "campaigns": "Campaigns"
+  }
+}
