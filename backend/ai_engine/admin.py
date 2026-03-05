@@ -11,13 +11,13 @@ class MLModelAdmin(admin.ModelAdmin):
 
 @admin.register(PredictionLog)
 class PredictionLogAdmin(admin.ModelAdmin):
-    list_display = ('model', 'prediction', 'confidence', 'actual_value', 'created_at')
-    list_filter = ('model', 'created_at')
-    search_fields = ('prediction', 'actual_value')
+    list_display = ('model', 'confidence', 'feedback', 'processing_time_ms', 'created_at')
+    list_filter = ('model', 'feedback', 'created_at')
+    search_fields = ('feedback',)
 
 
 @admin.register(AIInsight)
 class AIInsightAdmin(admin.ModelAdmin):
-    list_display = ('title', 'insight_type', 'confidence_score', 'created_at', 'is_active')
-    list_filter = ('insight_type', 'is_active', 'created_at')
-    search_fields = ('title', 'description', 'insight_type')
+    list_display = ('title', 'insight_type', 'severity', 'is_acknowledged', 'created_at')
+    list_filter = ('insight_type', 'severity', 'is_acknowledged', 'created_at')
+    search_fields = ('title', 'description')
