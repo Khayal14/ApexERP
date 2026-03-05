@@ -70,9 +70,7 @@ MIDDLEWARE = [
     'auditlog.middleware.AuditlogMiddleware',
     'core.middleware.CompanyMiddleware',
     'core.middleware.TimezoneMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
-
 ROOT_URLCONF = 'apex_erp.urls'
 
 TEMPLATES = [
