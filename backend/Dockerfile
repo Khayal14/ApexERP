@@ -21,4 +21,4 @@ RUN mkdir -p /app/staticfiles /app/media /app/ml_models /app/logs
 
 EXPOSE 8000
 
-CMD sh -c "python manage.py migrate --noinput && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p ${PORT:-8000} apex_erp.asgi:application"
+CMD sh -c "python manage.py makemigrations core accounting hr inventory sales manufacturing supply_chain project_mgmt marketing ecommerce ai_engine --noinput && python manage.py migrate --noinput && python manage.py collectstatic --noinput && daphne -b 0.0.0.0 -p ${PORT:-8000} apex_erp.asgi:application"
