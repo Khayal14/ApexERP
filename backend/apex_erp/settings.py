@@ -71,7 +71,7 @@ MIDDLEWARE = [
     'auditlog.middleware.AuditlogMiddleware',
     'core.middleware.CompanyMiddleware',
     'core.middleware.TimezoneMiddleware',
-
+]
 ROOT_URLCONF = 'apex_erp.urls'
 
 TEMPLATES = [
