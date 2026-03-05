@@ -191,6 +191,8 @@ SIMPLE_JWT = {
 
 # CORS
 CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,https://apex-erp-nu.vercel.app').split(',')
+CORS_ALLOW_HEADERS = ['*']
+CORS_ALLOW_METHODS = ['*']
 CORS_ALLOW_CREDENTIALS = True
 
 # Celery
