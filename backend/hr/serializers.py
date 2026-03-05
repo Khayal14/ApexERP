@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import (
+
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
+
     Department, JobPosition, Employee, PayrollPeriod, Payslip,
     LeaveType, LeaveRequest, Attendance, PerformanceReview,
     Recruitment, Applicant
@@ -12,6 +15,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Department
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_employee_count(self, obj):
         return obj.employees.filter(status='active').count()
@@ -24,6 +28,7 @@ class JobPositionSerializer(serializers.ModelSerializer):
     class Meta:
         model = JobPosition
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_vacancy(self, obj):
         return obj.headcount - obj.filled
@@ -37,6 +42,7 @@ class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
         extra_kwargs = {'salary': {'write_only': False}}
 
 
@@ -46,6 +52,7 @@ class PayslipSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payslip
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class PayrollPeriodSerializer(serializers.ModelSerializer):
@@ -54,6 +61,7 @@ class PayrollPeriodSerializer(serializers.ModelSerializer):
     class Meta:
         model = PayrollPeriod
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_payslip_count(self, obj):
         return obj.payslips.count()
@@ -63,6 +71,7 @@ class LeaveTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaveType
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class LeaveRequestSerializer(serializers.ModelSerializer):
@@ -72,6 +81,7 @@ class LeaveRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = LeaveRequest
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class AttendanceSerializer(serializers.ModelSerializer):
@@ -80,6 +90,7 @@ class AttendanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attendance
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class PerformanceReviewSerializer(serializers.ModelSerializer):
@@ -89,6 +100,7 @@ class PerformanceReviewSerializer(serializers.ModelSerializer):
     class Meta:
         model = PerformanceReview
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class RecruitmentSerializer(serializers.ModelSerializer):
@@ -97,9 +109,11 @@ class RecruitmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recruitment
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class ApplicantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Applicant
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS

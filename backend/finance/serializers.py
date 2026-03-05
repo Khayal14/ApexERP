@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import (
+
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
+
     Currency, FiscalYear, ChartOfAccount, JournalEntry, JournalEntryLine,
     Invoice, InvoiceLine, Payment, TaxRate, Budget, BudgetLine,
     ExpenseCategory, Expense
@@ -10,12 +13,14 @@ class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = Currency
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class FiscalYearSerializer(serializers.ModelSerializer):
     class Meta:
         model = FiscalYear
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class ChartOfAccountSerializer(serializers.ModelSerializer):
@@ -24,6 +29,7 @@ class ChartOfAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = ChartOfAccount
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_children(self, obj):
         children = obj.children.filter(is_active=True)
@@ -36,6 +42,7 @@ class JournalEntryLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = JournalEntryLine
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class JournalEntrySerializer(serializers.ModelSerializer):
@@ -44,6 +51,7 @@ class JournalEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = JournalEntry
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def validate(self, data):
         if data.get('status') == 'posted':
@@ -59,6 +67,7 @@ class InvoiceLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = InvoiceLine
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
@@ -68,6 +77,7 @@ class InvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Invoice
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_payments_total(self, obj):
         return sum(p.amount for p in obj.payments.filter(status='completed'))
@@ -77,18 +87,21 @@ class PaymentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Payment
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class TaxRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaxRate
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class BudgetLineSerializer(serializers.ModelSerializer):
     class Meta:
         model = BudgetLine
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class BudgetSerializer(serializers.ModelSerializer):
@@ -98,6 +111,7 @@ class BudgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Budget
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_utilization(self, obj):
         if obj.total_budget > 0:
@@ -109,6 +123,7 @@ class ExpenseCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ExpenseCategory
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class ExpenseSerializer(serializers.ModelSerializer):
@@ -117,3 +132,4 @@ class ExpenseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Expense
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS

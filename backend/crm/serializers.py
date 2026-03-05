@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Contact, Pipeline, PipelineStage, Deal, Activity, EmailCampaign, CustomerSegment
 
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
+
+
 
 class ContactSerializer(serializers.ModelSerializer):
     full_name = serializers.ReadOnlyField()
@@ -10,6 +13,7 @@ class ContactSerializer(serializers.ModelSerializer):
     class Meta:
         model = Contact
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_deals_count(self, obj):
         return obj.deals.count()
@@ -22,6 +26,7 @@ class PipelineStageSerializer(serializers.ModelSerializer):
     class Meta:
         model = PipelineStage
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_deals_count(self, obj):
         return obj.deals.filter(status='open').count()
@@ -36,6 +41,7 @@ class PipelineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pipeline
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class DealSerializer(serializers.ModelSerializer):
@@ -46,6 +52,7 @@ class DealSerializer(serializers.ModelSerializer):
     class Meta:
         model = Deal
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_weighted_value(self, obj):
         return float(obj.value * obj.probability / 100)
@@ -58,6 +65,7 @@ class ActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Activity
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class EmailCampaignSerializer(serializers.ModelSerializer):
@@ -67,6 +75,7 @@ class EmailCampaignSerializer(serializers.ModelSerializer):
     class Meta:
         model = EmailCampaign
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 
 class CustomerSegmentSerializer(serializers.ModelSerializer):
@@ -75,6 +84,7 @@ class CustomerSegmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomerSegment
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
     def get_contact_count(self, obj):
         return obj.contacts.count()

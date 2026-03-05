@@ -1,21 +1,27 @@
 from rest_framework import serializers
 from .models import Dashboard, Widget, Report, KPI, DataExport
 
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
+
+
 class WidgetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Widget
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class DashboardSerializer(serializers.ModelSerializer):
     widgets = WidgetSerializer(many=True, read_only=True)
     class Meta:
         model = Dashboard
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Report
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class KPISerializer(serializers.ModelSerializer):
     achievement = serializers.ReadOnlyField()
@@ -23,6 +29,7 @@ class KPISerializer(serializers.ModelSerializer):
     class Meta:
         model = KPI
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
     def get_change_percent(self, obj):
         if obj.previous_value and obj.previous_value > 0:
             return round(float((obj.current_value - obj.previous_value) / obj.previous_value * 100), 2)
@@ -32,3 +39,4 @@ class DataExportSerializer(serializers.ModelSerializer):
     class Meta:
         model = DataExport
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS

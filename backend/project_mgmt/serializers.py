@@ -1,11 +1,15 @@
 from rest_framework import serializers
 from .models import Project, Milestone, Task, TaskComment, TimeEntry
 
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
+
+
 class MilestoneSerializer(serializers.ModelSerializer):
     task_count = serializers.SerializerMethodField()
     class Meta:
         model = Milestone
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
     def get_task_count(self, obj):
         return obj.tasks.count()
 
@@ -14,6 +18,7 @@ class TaskCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskComment
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to_name = serializers.CharField(source='assigned_to.get_full_name', read_only=True, default='')
@@ -22,6 +27,7 @@ class TaskSerializer(serializers.ModelSerializer):
     class Meta:
         model = Task
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
     def get_subtask_count(self, obj):
         return obj.subtasks.count()
     def get_comments_count(self, obj):
@@ -33,6 +39,7 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
     def get_task_stats(self, obj):
         tasks = obj.tasks.all()
         return {
@@ -47,3 +54,4 @@ class TimeEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeEntry
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS

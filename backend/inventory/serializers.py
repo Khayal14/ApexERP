@@ -1,5 +1,8 @@
 from rest_framework import serializers
 from .models import (
+
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
+
     Warehouse, ProductCategory, Product, StockLevel, StockMovement,
     InventoryCount, InventoryCountLine, DemandForecast
 )
@@ -9,6 +12,7 @@ class WarehouseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Warehouse
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
     def get_utilization(self, obj):
         total_stock = sum(sl.quantity for sl in obj.stock_levels.all())
         return round(float(total_stock / obj.capacity * 100), 2) if obj.capacity > 0 else 0
@@ -17,6 +21,7 @@ class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class ProductSerializer(serializers.ModelSerializer):
     total_stock = serializers.SerializerMethodField()
@@ -24,6 +29,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
     def get_total_stock(self, obj):
         return float(sum(sl.quantity for sl in obj.stock_levels.all()))
 
@@ -33,24 +39,28 @@ class StockLevelSerializer(serializers.ModelSerializer):
     class Meta:
         model = StockLevel
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class StockMovementSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     class Meta:
         model = StockMovement
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class InventoryCountLineSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
     class Meta:
         model = InventoryCountLine
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class InventoryCountSerializer(serializers.ModelSerializer):
     lines = InventoryCountLineSerializer(many=True, read_only=True)
     class Meta:
         model = InventoryCount
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
 
 class DemandForecastSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source='product.name', read_only=True)
@@ -58,6 +68,7 @@ class DemandForecastSerializer(serializers.ModelSerializer):
     class Meta:
         model = DemandForecast
         fields = '__all__'
+        read_only_fields = AUTO_FIELDS
     def get_accuracy(self, obj):
         if obj.actual_demand and obj.forecasted_demand:
             return round((1 - abs(float(obj.actual_demand - obj.forecasted_demand) / float(obj.forecasted_demand))) * 100, 2)
