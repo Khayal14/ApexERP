@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from .models import (
-
-AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
-
     Currency, FiscalYear, ChartOfAccount, JournalEntry, JournalEntryLine,
     Invoice, InvoiceLine, Payment, TaxRate, Budget, BudgetLine,
     ExpenseCategory, Expense
 )
+
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 
 class CurrencySerializer(serializers.ModelSerializer):

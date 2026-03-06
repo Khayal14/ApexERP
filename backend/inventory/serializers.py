@@ -1,11 +1,10 @@
 from rest_framework import serializers
 from .models import (
-
-AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
-
     Warehouse, ProductCategory, Product, StockLevel, StockMovement,
     InventoryCount, InventoryCountLine, DemandForecast
 )
+
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 class WarehouseSerializer(serializers.ModelSerializer):
     utilization = serializers.SerializerMethodField()

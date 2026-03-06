@@ -1,12 +1,11 @@
 from rest_framework import serializers
 from .models import (
-
-AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
-
     Department, JobPosition, Employee, PayrollPeriod, Payslip,
     LeaveType, LeaveRequest, Attendance, PerformanceReview,
     Recruitment, Applicant
 )
+
+AUTO_FIELDS = ('company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
