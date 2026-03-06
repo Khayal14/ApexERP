@@ -8,7 +8,7 @@ import Modal from '../components/common/Modal';
 import FormField from '../components/common/FormField';
 import api from '../api/client';
 
-const emptyInvoice = { customer_name: '', invoice_type: 'standard', status: 'draft', subtotal: '', tax_amount: '', discount_amount: '', due_date: '', notes: '' };
+const emptyInvoice = { invoice_number: '', invoice_type: 'sales', customer_name: '', customer_email: '', issue_date: '', due_date: '', status: 'draft', subtotal: '', tax_amount: '', discount_amount: '', notes: '' };
 const emptyExpense = { description: '', amount: '', category: 'general', date: '', vendor: '', receipt_number: '', notes: '' };
 
 export default function FinancePage() {
@@ -51,7 +51,7 @@ export default function FinancePage() {
   const openEdit = (item) => {
     setEditItem(item);
     if (tab === 'invoices') {
-      setForm({ customer_name: item.customer_name || '', invoice_type: item.invoice_type || 'standard', status: item.status || 'draft', subtotal: item.subtotal || '', tax_amount: item.tax_amount || '', discount_amount: item.discount_amount || '', due_date: item.due_date || '', notes: item.notes || '' });
+      setForm({ invoice_number: item.invoice_number || '', invoice_type: item.invoice_type || 'sales', customer_name: item.customer_name || '', customer_email: item.customer_email || '', issue_date: item.issue_date || '', due_date: item.due_date || '', status: item.status || 'draft', subtotal: item.subtotal || '', tax_amount: item.tax_amount || '', discount_amount: item.discount_amount || '', notes: item.notes || '' });
     } else {
       setForm({ description: item.description || '', amount: item.amount || '', category: item.category || 'general', date: item.date || '', vendor: item.vendor || '', receipt_number: item.receipt_number || '', notes: item.notes || '' });
     }
@@ -147,17 +147,26 @@ export default function FinancePage() {
 
           {tab === 'invoices' ? (
             <>
-              <FormField label="Customer Name" name="customer_name" value={form.customer_name} onChange={handleChange} required />
               <div className="grid grid-cols-2 gap-4">
-                <FormField label="Invoice Type" name="invoice_type" type="select" value={form.invoice_type} onChange={handleChange} options={['standard', 'credit', 'debit', 'proforma']} />
-                <FormField label="Status" name="status" type="select" value={form.status} onChange={handleChange} options={['draft', 'sent', 'paid', 'overdue', 'cancelled']} />
+                <FormField label="Invoice Number" name="invoice_number" value={form.invoice_number} onChange={handleChange} required placeholder="e.g. INV-001" />
+                <FormField label="Invoice Type" name="invoice_type" type="select" value={form.invoice_type} onChange={handleChange} options={[{ value: 'sales', label: 'Sales Invoice' }, { value: 'purchase', label: 'Purchase Invoice' }, { value: 'credit_note', label: 'Credit Note' }, { value: 'debit_note', label: 'Debit Note' }]} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField label="Customer Name" name="customer_name" value={form.customer_name} onChange={handleChange} required />
+                <FormField label="Customer Email" name="customer_email" type="email" value={form.customer_email} onChange={handleChange} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <FormField label="Status" name="status" type="select" value={form.status} onChange={handleChange} options={[{ value: 'draft', label: 'Draft' }, { value: 'sent', label: 'Sent' }, { value: 'partial', label: 'Partially Paid' }, { value: 'paid', label: 'Paid' }, { value: 'overdue', label: 'Overdue' }, { value: 'cancelled', label: 'Cancelled' }]} />
               </div>
               <div className="grid grid-cols-3 gap-4">
-                <FormField label="Subtotal" name="subtotal" type="number" value={form.subtotal} onChange={handleChange} required />
+                <FormField label="Subtotal" name="subtotal" type="number" value={form.subtotal} onChange={handleChange} />
                 <FormField label="Tax Amount" name="tax_amount" type="number" value={form.tax_amount} onChange={handleChange} />
                 <FormField label="Discount" name="discount_amount" type="number" value={form.discount_amount} onChange={handleChange} />
               </div>
-              <FormField label="Due Date" name="due_date" type="date" value={form.due_date} onChange={handleChange} required />
+              <div className="grid grid-cols-2 gap-4">
+                <FormField label="Issue Date" name="issue_date" type="date" value={form.issue_date} onChange={handleChange} required />
+                <FormField label="Due Date" name="due_date" type="date" value={form.due_date} onChange={handleChange} required />
+              </div>
               <FormField label="Notes" name="notes" type="textarea" value={form.notes} onChange={handleChange} />
             </>
           ) : (
