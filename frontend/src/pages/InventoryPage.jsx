@@ -161,6 +161,12 @@ export default function InventoryPage() {
       ['category', 'parent', 'product', 'warehouse', 'source_warehouse', 'destination_warehouse'].forEach(k => {
         if (payload[k] === '') payload[k] = null;
       });
+      // Convert empty numeric fields to 0 or null
+      ['capacity', 'cost_price', 'selling_price', 'tax_rate', 'min_stock_level', 'max_stock_level', 'reorder_point', 'reorder_quantity', 'quantity', 'reserved_quantity', 'cost', 'weight'].forEach(k => {
+        if (k in payload && (payload[k] === '' || payload[k] === null || payload[k] === undefined)) {
+          payload[k] = ['weight', 'cost'].includes(k) ? null : 0;
+        }
+      });
       if (editItem) {
         await api.put(`${endpoint}${editItem.id}/`, payload);
       } else {
