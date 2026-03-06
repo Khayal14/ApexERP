@@ -49,10 +49,17 @@ export default function MarketingPage() {
     setSaving(true);
     setError('');
     try {
+      const payload = { ...form };
+      // Convert empty numeric fields to 0
+      ['budget'].forEach(k => {
+        if (k in payload && (payload[k] === '' || payload[k] === null || payload[k] === undefined)) {
+          payload[k] = 0;
+        }
+      });
       if (editItem) {
-        await api.put(`/marketing/campaigns/${editItem.id}/`, form);
+        await api.put(`/marketing/campaigns/${editItem.id}/`, payload);
       } else {
-        await api.post('/marketing/campaigns/', form);
+        await api.post('/marketing/campaigns/', payload);
       }
       setShowModal(false);
       fetchData();

@@ -62,10 +62,21 @@ export default function CRMPage() {
     setError('');
     try {
       const endpoint = tab === 'contacts' ? '/crm/contacts/' : '/crm/deals/';
+      const payload = { ...form };
+      // Convert empty numeric fields to 0
+      ['value'].forEach(k => {
+        if (k in payload && (payload[k] === '' || payload[k] === null || payload[k] === undefined)) {
+          payload[k] = 0;
+        }
+      });
+      // Convert empty FK fields to null
+      ['contact'].forEach(k => {
+        if (k in payload && payload[k] === '') payload[k] = null;
+      });
       if (editItem) {
-        await api.put(`${endpoint}${editItem.id}/`, form);
+        await api.put(`${endpoint}${editItem.id}/`, payload);
       } else {
-        await api.post(endpoint, form);
+        await api.post(endpoint, payload);
       }
       setShowModal(false);
       fetchData();

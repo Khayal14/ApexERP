@@ -62,10 +62,21 @@ export default function ManufacturingPage() {
     setError('');
     try {
       const endpoint = tab === 'orders' ? '/manufacturing/production-orders/' : '/manufacturing/work-centers/';
+      const payload = { ...form };
+      // Convert empty numeric fields to 0
+      ['quantity', 'capacity', 'efficiency', 'hourly_cost'].forEach(k => {
+        if (k in payload && (payload[k] === '' || payload[k] === null || payload[k] === undefined)) {
+          payload[k] = 0;
+        }
+      });
+      // Convert empty FK fields to null
+      ['work_center'].forEach(k => {
+        if (k in payload && payload[k] === '') payload[k] = null;
+      });
       if (editItem) {
-        await api.put(`${endpoint}${editItem.id}/`, form);
+        await api.put(`${endpoint}${editItem.id}/`, payload);
       } else {
-        await api.post(endpoint, form);
+        await api.post(endpoint, payload);
       }
       setShowModal(false);
       fetchData();

@@ -67,10 +67,17 @@ export default function FinancePage() {
     setError('');
     try {
       const endpoint = tab === 'invoices' ? '/finance/invoices/' : '/finance/expenses/';
+      const payload = { ...form };
+      // Convert empty numeric fields to 0
+      ['subtotal', 'tax_amount', 'discount_amount', 'amount'].forEach(k => {
+        if (k in payload && (payload[k] === '' || payload[k] === null || payload[k] === undefined)) {
+          payload[k] = 0;
+        }
+      });
       if (editItem) {
-        await api.put(`${endpoint}${editItem.id}/`, form);
+        await api.put(`${endpoint}${editItem.id}/`, payload);
       } else {
-        await api.post(endpoint, form);
+        await api.post(endpoint, payload);
       }
       setShowModal(false);
       fetchData();
