@@ -37,7 +37,18 @@
   "dashboard": {
     "title": "Dashboard", "revenue": "Revenue", "orders": "Orders",
     "employees": "Employees", "deals": "Open Deals", "pipeline": "Pipeline Value",
-    "this_month": "This Month", "growth": "Growth"
+    "this_month": "This Month", "growth": "Growth", "open_deals": "Open Deals",
+    "powered_by": "Powered by ApexERP",
+    "good_morning": "Good morning", "good_afternoon": "Good afternoon", "good_evening": "Good evening",
+    "branches": "Product Branches",
+    "branch_led": "LED Lights", "branch_heater": "Heaters & Thermocouples", "branch_solar": "Solar ACs",
+    "products": "Products", "inv_value": "Inv. Value", "low_stock": "Low Stock",
+    "quick_actions": "Quick Actions",
+    "new_invoice": "New Invoice", "add_product": "Add Product",
+    "record_payment": "Record Payment", "new_expense": "New Expense",
+    "new_employee": "New Employee", "new_deal": "New Deal",
+    "recent_invoices": "Recent Invoices", "recent_movements": "Recent Stock Movements",
+    "products_by_category": "Products by Category"
   },
   "finance": {
     "title": "Finance & Accounting",

@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../contexts/AuthContext';
 import clsx from 'clsx';
 
 const navItems = [
@@ -20,6 +21,9 @@ const navItems = [
 
 export default function Sidebar({ isOpen, onClose }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const companyName = user?.company_name || user?.company?.name || 'Gamma International';
+  const companyInitial = companyName.charAt(0).toUpperCase();
 
   return (
     <aside className={clsx(
@@ -27,12 +31,12 @@ export default function Sidebar({ isOpen, onClose }) {
       isOpen ? 'translate-x-0' : '-translate-x-full',
       '[dir=rtl] &:left-auto [dir=rtl] &:right-0'
     )}>
-      {/* Logo */}
+      {/* Company Branding */}
       <div className="flex items-center gap-3 px-5 py-5 border-b border-gray-200 dark:border-gray-700">
-        <div className="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">A</div>
-        <div>
-          <h1 className="text-lg font-bold text-gray-900 dark:text-white">ApexERP</h1>
-          <p className="text-xs text-gray-500 dark:text-gray-400">v1.0.0</p>
+        <div className="w-9 h-9 bg-primary-600 rounded-lg flex items-center justify-center text-white font-bold text-lg">{companyInitial}</div>
+        <div className="min-w-0 flex-1">
+          <h1 className="text-sm font-bold text-gray-900 dark:text-white truncate">{companyName}</h1>
+          <p className="text-xs text-gray-500 dark:text-gray-400">Powered by ApexERP</p>
         </div>
       </div>
 
@@ -62,7 +66,7 @@ export default function Sidebar({ isOpen, onClose }) {
 
       {/* Footer */}
       <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">Open Source ERP</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">Powered by ApexERP v1.0</p>
       </div>
     </aside>
   );

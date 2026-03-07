@@ -37,7 +37,18 @@
   "dashboard": {
     "title": "لوحة التحكم", "revenue": "الإيرادات", "orders": "الطلبات",
     "employees": "الموظفون", "deals": "الصفقات المفتوحة", "pipeline": "قيمة خط الأنابيب",
-    "this_month": "هذا الشهر", "growth": "النمو"
+    "this_month": "هذا الشهر", "growth": "النمو", "open_deals": "الصفقات المفتوحة",
+    "powered_by": "مدعوم بواسطة ApexERP",
+    "good_morning": "صباح الخير", "good_afternoon": "مساء الخير", "good_evening": "مساء الخير",
+    "branches": "فروع المنتجات",
+    "branch_led": "إضاءة LED", "branch_heater": "السخانات والثيرموكبل", "branch_solar": "مكيفات الطاقة الشمسية",
+    "products": "المنتجات", "inv_value": "قيمة المخزون", "low_stock": "مخزون منخفض",
+    "quick_actions": "إجراءات سريعة",
+    "new_invoice": "فاتورة جديدة", "add_product": "إضافة منتج",
+    "record_payment": "تسجيل دفعة", "new_expense": "مصروف جديد",
+    "new_employee": "موظف جديد", "new_deal": "صفقة جديدة",
+    "recent_invoices": "أحدث الفواتير", "recent_movements": "أحدث حركات المخزون",
+    "products_by_category": "المنتجات حسب الفئة"
   },
   "finance": {
     "title": "المالية والمحاسبة",
