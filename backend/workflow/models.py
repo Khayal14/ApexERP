@@ -249,7 +249,7 @@ class Delivery(BaseModel):
     delivery_number = models.CharField(max_length=50, unique=True)
     client_po = models.ForeignKey(ClientPO, on_delete=models.CASCADE, related_name='deliveries')
     commercial_invoice = models.ForeignKey(CommercialInvoice, on_delete=models.SET_NULL, null=True, blank=True, related_name='deliveries')
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default='pending')
     client_name = models.CharField(max_length=255)
     delivery_address = models.TextField(blank=True)
     scheduled_date = models.DateField(null=True, blank=True)

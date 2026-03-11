@@ -8,18 +8,17 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .pdf_generator import (
-    generate_offer_pdf, generate_supplier_pi_pdf,
-    generate_supplier_po_pdf, generate_invoice_pdf,
-)
-
-
-GENERATORS = {
-    'offer': generate_offer_pdf,
-    'supplier_pi': generate_supplier_pi_pdf,
-    'supplier_po': generate_supplier_po_pdf,
-    'invoice': generate_invoice_pdf,
-}
+def _get_generators():
+    from .pdf_generator import (
+        generate_offer_pdf, generate_supplier_pi_pdf,
+        generate_supplier_po_pdf, generate_invoice_pdf,
+    )
+    return {
+        'offer': generate_offer_pdf,
+        'supplier_pi': generate_supplier_pi_pdf,
+        'supplier_po': generate_supplier_po_pdf,
+        'invoice': generate_invoice_pdf,
+    }
 
 
 def _get_company_from_user(user):
@@ -46,6 +45,7 @@ def generate_pdf_view(request, doc_type):
     Accept full document data as JSON and return a generated PDF.
     The frontend PDF editor POSTs the manually-adjusted data here.
     """
+    GENERATORS = _get_generators()
     if doc_type not in GENERATORS:
         return Response({'error': f'Unknown document type: {doc_type}'}, status=400)
 
