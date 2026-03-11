@@ -5,7 +5,7 @@
     "crm": "CRM", "inventory": "Inventory", "sales": "Sales",
     "projects": "Projects", "manufacturing": "Manufacturing",
     "marketing": "Marketing", "analytics": "Analytics",
-    "ecommerce": "E-Commerce", "settings": "Settings"
+    "ecommerce": "E-Commerce", "workflow": "Sales Workflow", "pdfEditor": "PDF Editor", "settings": "Settings"
   },
   "auth": {
     "login": "Sign In", "logout": "Sign Out", "email": "Email Address",

@@ -18,6 +18,8 @@ const MarketingPage = React.lazy(() => import('./pages/MarketingPage'));
 const AnalyticsPage = React.lazy(() => import('./pages/AnalyticsPage'));
 const EcommercePage = React.lazy(() => import('./pages/EcommercePage'));
 const SettingsPage = React.lazy(() => import('./pages/SettingsPage'));
+const WorkflowPage = React.lazy(() => import('./pages/WorkflowPage'));
+const PDFEditorPage = React.lazy(() => import('./pages/PDFEditorPage'));
 
 function ProtectedRoute({ children }) {
   const { user, loading } = useAuth();
@@ -52,6 +54,8 @@ export default function App() {
           <Route path="analytics/*" element={<Suspense fallback={<LoadingSpinner />}><AnalyticsPage /></Suspense>} />
           <Route path="ecommerce/*" element={<Suspense fallback={<LoadingSpinner />}><EcommercePage /></Suspense>} />
           <Route path="settings/*" element={<Suspense fallback={<LoadingSpinner />}><SettingsPage /></Suspense>} />
+          <Route path="workflow/*" element={<Suspense fallback={<LoadingSpinner />}><WorkflowPage /></Suspense>} />
+          <Route path="pdf-editor/*" element={<Suspense fallback={<LoadingSpinner />}><PDFEditorPage /></Suspense>} />
         </Route>
       </Routes>
     </>

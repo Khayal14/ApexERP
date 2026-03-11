@@ -16,6 +16,8 @@ const navItems = [
   { path: '/marketing', icon: '📣', key: 'marketing' },
   { path: '/analytics', icon: '📈', key: 'analytics' },
   { path: '/ecommerce', icon: '🌐', key: 'ecommerce' },
+  { path: '/workflow', icon: '🔄', key: 'workflow' },
+  { path: '/pdf-editor', icon: '📄', key: 'pdfEditor' },
   { path: '/settings', icon: '⚙️', key: 'settings' },
 ];
 

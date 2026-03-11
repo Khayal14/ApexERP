@@ -5,7 +5,7 @@
     "crm": "إدارة العلاقات", "inventory": "المخزون", "sales": "المبيعات",
     "projects": "المشاريع", "manufacturing": "التصنيع",
     "marketing": "التسويق", "analytics": "التحليلات",
-    "ecommerce": "التجارة الإلكترونية", "settings": "الإعدادات"
+    "ecommerce": "التجارة الإلكترونية", "workflow": "سير العمل", "pdfEditor": "محرر PDF", "settings": "الإعدادات"
   },
   "auth": {
     "login": "تسجيل الدخول", "logout": "تسجيل الخروج", "email": "البريد الإلكتروني",

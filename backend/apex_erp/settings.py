@@ -50,6 +50,7 @@ APEX_MODULES = {
     'analytics': True,
     'ecommerce': True,
     'ai_engine': True,
+    'workflow': True,
 }
 
 LOCAL_APPS = [app for app, enabled in APEX_MODULES.items() if enabled]
