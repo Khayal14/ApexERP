@@ -8,8 +8,15 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  // Attach JWT access token
   const token = localStorage.getItem('apex-token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // Attach active branch header so backend scopes data to the right company.
+  // Value is a Company UUID (single branch) or 'all' (consolidated view).
+  const branchId = localStorage.getItem('apex-active-branch');
+  if (branchId) config.headers['X-Branch-ID'] = branchId;
+
   return config;
 });
 

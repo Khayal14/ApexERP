@@ -6,7 +6,8 @@ from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .models import Company, Role, UserRole, Notification, SystemSetting, AuditLog
 from .serializers import (
-    CompanySerializer, UserSerializer, UserCreateSerializer,
+    CompanySerializer, CompanyMiniSerializer,
+    UserSerializer, UserCreateSerializer,
     RoleSerializer, NotificationSerializer, SystemSettingSerializer
 )
 from .permissions import IsCompanyAdmin, IsSameCompany
@@ -45,6 +46,36 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+    @action(detail=False, methods=['get'])
+    def branches(self, request):
+        """
+        Return all Company records the authenticated user can switch into.
+
+        This includes:
+          - Companies in the user.companies M2M (explicitly assigned branches)
+          - The user's primary company (user.company FK)
+          - Any subsidiaries of the parent Gamma International company
+
+        The frontend uses this list to populate the branch switcher.
+        """
+        user = request.user
+        # Start from explicitly assigned companies
+        qs = user.companies.filter(is_active=True)
+        # Add primary company
+        if user.company_id and not qs.filter(id=user.company_id).exists():
+            qs = qs | Company.objects.filter(id=user.company_id)
+
+        # If admin / superuser: also include all subsidiaries of the root company
+        if user.is_superuser and user.company:
+            root = user.company.parent or user.company
+            subsidiaries = Company.objects.filter(
+                Q(id=root.id) | Q(parent=root),
+                is_active=True,
+            )
+            qs = (qs | subsidiaries).distinct()
+
+        return Response(CompanyMiniSerializer(qs.order_by('name'), many=True).data)
 
     @action(detail=True, methods=['post'])
     def assign_role(self, request, pk=None):
@@ -129,10 +160,11 @@ class DashboardView(APIView):
 
     def get(self, request):
         user = request.user
-        company = user.company
+        company = getattr(request, 'company', None) or user.company
         data = {
             'user': UserSerializer(user).data,
             'company': CompanySerializer(company).data if company else None,
+            'active_branch_mode': getattr(request, 'branch_mode', 'single'),
             'unread_notifications': Notification.objects.filter(user=user, is_read=False).count(),
             'modules': list(Role.objects.filter(
                 role_users__user=user
