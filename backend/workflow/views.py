@@ -12,7 +12,18 @@ from .serializers import (
 )
 
 
-class LeadViewSet(viewsets.ModelViewSet):
+class WorkflowViewSetMixin:
+    """Mixin that auto-sets company, created_by, updated_by from the request user."""
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        serializer.save(company=user.company, created_by=user, updated_by=user)
+
+    def perform_update(self, serializer):
+        serializer.save(updated_by=self.request.user)
+
+
+class LeadViewSet(WorkflowViewSetMixin, viewsets.ModelViewSet):
     queryset = Lead.objects.all()
     serializer_class = LeadSerializer
     permission_classes = [IsAuthenticated]
@@ -22,7 +33,7 @@ class LeadViewSet(viewsets.ModelViewSet):
     ordering_fields = ['created_at', 'estimated_value']
 
 
-class SupplierPIViewSet(viewsets.ModelViewSet):
+class SupplierPIViewSet(WorkflowViewSetMixin, viewsets.ModelViewSet):
     queryset = SupplierPI.objects.select_related('supplier').prefetch_related('lines').all()
     serializer_class = SupplierPISerializer
     permission_classes = [IsAuthenticated]
@@ -32,7 +43,7 @@ class SupplierPIViewSet(viewsets.ModelViewSet):
     ordering_fields = ['issue_date', 'total']
 
 
-class ClientQuotationViewSet(viewsets.ModelViewSet):
+class ClientQuotationViewSet(WorkflowViewSetMixin, viewsets.ModelViewSet):
     queryset = ClientQuotation.objects.prefetch_related('lines').all()
     serializer_class = ClientQuotationSerializer
     permission_classes = [IsAuthenticated]
@@ -42,7 +53,7 @@ class ClientQuotationViewSet(viewsets.ModelViewSet):
     ordering_fields = ['issue_date', 'total']
 
 
-class ClientPOViewSet(viewsets.ModelViewSet):
+class ClientPOViewSet(WorkflowViewSetMixin, viewsets.ModelViewSet):
     queryset = ClientPO.objects.prefetch_related('lines').all()
     serializer_class = ClientPOSerializer
     permission_classes = [IsAuthenticated]
@@ -52,7 +63,7 @@ class ClientPOViewSet(viewsets.ModelViewSet):
     ordering_fields = ['order_date', 'total']
 
 
-class CommercialInvoiceViewSet(viewsets.ModelViewSet):
+class CommercialInvoiceViewSet(WorkflowViewSetMixin, viewsets.ModelViewSet):
     queryset = CommercialInvoice.objects.all()
     serializer_class = CommercialInvoiceSerializer
     permission_classes = [IsAuthenticated]
@@ -62,7 +73,7 @@ class CommercialInvoiceViewSet(viewsets.ModelViewSet):
     ordering_fields = ['issue_date', 'total', 'due_date']
 
 
-class DeliveryViewSet(viewsets.ModelViewSet):
+class DeliveryViewSet(WorkflowViewSetMixin, viewsets.ModelViewSet):
     queryset = Delivery.objects.all()
     serializer_class = DeliverySerializer
     permission_classes = [IsAuthenticated]
