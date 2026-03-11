@@ -11,7 +11,7 @@ class LeadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Lead
         fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 
 class SupplierPILineSerializer(serializers.ModelSerializer):
@@ -27,7 +27,7 @@ class SupplierPISerializer(serializers.ModelSerializer):
     class Meta:
         model = SupplierPI
         fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 
 class ClientQuotationLineSerializer(serializers.ModelSerializer):
@@ -42,7 +42,7 @@ class ClientQuotationSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientQuotation
         fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 
 class ClientPOLineSerializer(serializers.ModelSerializer):
@@ -57,18 +57,18 @@ class ClientPOSerializer(serializers.ModelSerializer):
     class Meta:
         model = ClientPO
         fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 
 class CommercialInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommercialInvoice
         fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'company', 'created_by', 'updated_by', 'created_at', 'updated_at')
 
 
 class DeliverySerializer(serializers.ModelSerializer):
     class Meta:
         model = Delivery
         fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at')
+        read_only_fields = ('id', 'company', 'created_by', 'updated_by', 'created_at', 'updated_at')
