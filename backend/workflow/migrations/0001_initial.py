@@ -2,7 +2,6 @@
 
 import django.db.models.deletion
 import uuid
-from django.conf import settings
 from django.db import migrations, models
 
 
@@ -10,12 +9,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('core', '0001_initial'),
-        ('inventory', '0001_initial'),
-        ('supply_chain', '0001_initial'),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
