@@ -243,6 +243,8 @@ class GammaCatalogPDF:
         s = self.s
 
         # Greeting
+        sender_info = d.get('sender_info', {}) or {}
+        sender_name = sender_info.get('name', '')
         story.append(Paragraph("Dear Sir, / السيد المحترم", s['greeting']))
         story.append(Spacer(1, 2*mm))
         story.append(Paragraph(
@@ -267,9 +269,9 @@ class GammaCatalogPDF:
         ]
         right_data = [
             ['Date :', fmt_date(d.get('date', d.get('issue_date', '')))],
-            ['REV :', d.get('revision', d.get('doc_number', ''))],
+            ['Offer Ref :', d.get('offer_reference', d.get('doc_number', ''))],
             ['Email :', party_email],
-            ['Valid Until :', fmt_date(d.get('valid_until', d.get('due_date', '')))],
+            ['Offer Valid Until :', fmt_date(d.get('valid_until', d.get('due_date', '')))],
             ['Currency :', d.get('currency', 'USD')],
         ]
 
@@ -471,12 +473,19 @@ class GammaCatalogPDF:
 
     # ═══ COMPLIANCE NOTE ═══
     def _add_compliance(self, story):
+        # For offers, always include the IEC standard note.
+        # Custom notes can also be supplied via data keys.
         note = self.data.get('compliance_note', '')
         note_ar = self.data.get('compliance_note_ar', '')
+
+        if self.doc_type == 'offer' and not note_ar:
+            note_ar = 'الكشافات واللمبات المورده منا تخضع للمواصفات القياسية العالمية 62612-2013 IEC'
+
         if note or note_ar:
             story.append(Spacer(1, 4*mm))
+            display_text = ar(note_ar) if note_ar and not note else f"{note}{'  |  ' + ar(note_ar) if note_ar else ''}"
             bg_tbl = Table(
-                [[Paragraph(f"{note}{'  |  ' + ar(note_ar) if note_ar else ''}", self.s['compliance'])]],
+                [[Paragraph(display_text, self.s['compliance'])]],
                 colWidths=[self.usable]
             )
             bg_tbl.setStyle(TableStyle([
@@ -495,8 +504,45 @@ class GammaCatalogPDF:
         terms_ar = d.get('terms_ar', '')
         notes = d.get('notes', '')
 
-        if terms or terms_ar or notes:
+        # Offer-specific structured fields
+        payment_terms = d.get('payment_terms', '')
+        warranty_duration = d.get('warranty_duration', '')
+        delivery_location = d.get('delivery_location', '')
+        delivery_time = d.get('delivery_time', '')
+        sender_info = d.get('sender_info', {}) or {}
+
+        has_content = any([terms, terms_ar, notes, payment_terms,
+                           warranty_duration, delivery_location, delivery_time])
+        if has_content:
             story.append(Spacer(1, 5*mm))
+
+        # Structured offer conditions (two-column table)
+        offer_rows = []
+        if payment_terms:
+            offer_rows.append(('Payment Terms / شروط الدفع', payment_terms))
+        if warranty_duration:
+            offer_rows.append(('Warranty / الضمان', warranty_duration))
+        if delivery_location:
+            offer_rows.append(('Delivery Location / موقع التسليم', delivery_location))
+        if delivery_time:
+            offer_rows.append(('Delivery Time / وقت التسليم', delivery_time))
+
+        if offer_rows:
+            tbl_data = [
+                [Paragraph(f"<b>{label}</b>", s['field_label']),
+                 Paragraph(str(value), s['field_value'])]
+                for label, value in offer_rows
+            ]
+            cond_tbl = Table(tbl_data, colWidths=[48*mm, self.usable - 48*mm])
+            cond_tbl.setStyle(TableStyle([
+                ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+                ('TOPPADDING', (0,0), (-1,-1), 3),
+                ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+                ('LINEBELOW', (0,0), (-1,-1), 0.3, BORDER_CLR),
+                ('BACKGROUND', (0,0), (0,-1), HexColor('#F8F9FA')),
+            ]))
+            story.append(cond_tbl)
+            story.append(Spacer(1, 3*mm))
 
         if terms:
             story.append(Paragraph(f"<b>Terms & Conditions:</b><br/>{terms}", s['terms']))
@@ -509,12 +555,25 @@ class GammaCatalogPDF:
         if notes:
             story.append(Paragraph(f"<b>Notes:</b> {notes}", s['terms']))
 
+        # Sender / salesperson info block
+        if sender_info and any(sender_info.values()):
+            story.append(Spacer(1, 4*mm))
+            sender_parts = []
+            if sender_info.get('name'):
+                sender_parts.append(f"<b>Prepared by:</b> {sender_info['name']}")
+            if sender_info.get('phone'):
+                sender_parts.append(f"<b>Tel:</b> {sender_info['phone']}")
+            if sender_info.get('email'):
+                sender_parts.append(f"<b>Email:</b> {sender_info['email']}")
+            if sender_parts:
+                story.append(Paragraph('   |   '.join(sender_parts), s['terms']))
+
         # Bank details for invoices
         if self.doc_type == 'invoice':
             bank = d.get('bank_details', {})
             if bank:
                 story.append(Spacer(1, 4*mm))
-                lines = [f"<b>Bank Details / التفاصيل البنكية:</b>"]
+                lines = ["<b>Bank Details / التفاصيل البنكية:</b>"]
                 for k, v in bank.items():
                     lines.append(f"<b>{k}:</b> {v}")
                 story.append(Paragraph('<br/>'.join(lines), s['terms']))
