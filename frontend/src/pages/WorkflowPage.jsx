@@ -30,6 +30,7 @@ const PIPELINE_STEPS = [
 const CURRENCIES = [
   { value: 'USD', label: 'USD ($)' },
   { value: 'EUR', label: 'EUR (€)' },
+  { value: 'EGP', label: 'EGP (ج.م)' },
   { value: 'CNY', label: 'CNY (¥)' },
   { value: 'IQD', label: 'IQD (ع.د)' },
 ];

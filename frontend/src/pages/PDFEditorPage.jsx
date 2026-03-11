@@ -48,6 +48,7 @@ const DOC_TYPES = [
 const CURRENCIES = [
   { value: 'USD', label: 'USD ($)' },
   { value: 'EUR', label: 'EUR (€)' },
+  { value: 'EGP', label: 'EGP (ج.م)' },
   { value: 'CNY', label: 'CNY (¥)' },
   { value: 'IQD', label: 'IQD (ع.د)' },
 ];
@@ -73,9 +74,10 @@ const EMPTY_LINE = {
 /* ─── Helpers ─── */
 const fmtCurrency = (amount, currency = 'USD') => {
   const n = parseFloat(amount) || 0;
-  const symbols = { USD: '$', EUR: '€', CNY: '¥', IQD: 'IQD ' };
+  const symbols = { USD: '$', EUR: '€', EGP: 'EGP ', CNY: '¥', IQD: 'IQD ' };
   const sym = symbols[currency] || currency + ' ';
   if (currency === 'IQD') return `IQD ${n.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  if (currency === 'EGP') return `EGP ${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return `${sym}${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };
 

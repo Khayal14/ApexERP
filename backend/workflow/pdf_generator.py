@@ -55,15 +55,36 @@ DOC_THEMES = {
 }
 
 def ar(text):
+    """Reshape + bidi-display a pure Arabic string for ReportLab (LTR canvas)."""
     if not text: return ''
     return get_display(arabic_reshaper.reshape(str(text)))
+
+def mar(text):
+    """Process a mixed 'English / Arabic' label so the Arabic portion renders correctly.
+    E.g.  'Payment Terms / شروط الدفع'  →  'Payment Terms / <reshaped-bidi>'
+    Also handles pure-Arabic strings (no '/') by delegating to ar().
+    """
+    if not text:
+        return ''
+    if ' / ' in text:
+        en_part, ar_part = text.split(' / ', 1)
+        return f"{en_part} / {ar(ar_part)}"
+    # Pure Arabic or no separator — try reshaping anyway
+    try:
+        reshaped = arabic_reshaper.reshape(str(text))
+        if reshaped != str(text):          # contains Arabic chars
+            return get_display(reshaped)
+    except Exception:
+        pass
+    return text
 
 def fmt_currency(amount, currency='USD'):
     try: val = float(amount)
     except: return f'{currency} 0.00'
-    syms = {'USD': '$', 'EUR': '€', 'CNY': '¥', 'IQD': 'IQD '}
+    syms = {'USD': '$', 'EUR': '€', 'CNY': '¥', 'IQD': 'IQD ', 'EGP': 'EGP '}
     sym = syms.get(currency, currency + ' ')
     if currency == 'IQD': return f'IQD {val:,.0f}'
+    if currency == 'EGP': return f'EGP {val:,.2f}'
     return f'{sym}{val:,.2f}'
 
 def fmt_date(d):
@@ -245,7 +266,7 @@ class GammaCatalogPDF:
         # Greeting
         sender_info = d.get('sender_info', {}) or {}
         sender_name = sender_info.get('name', '')
-        story.append(Paragraph("Dear Sir, / السيد المحترم", s['greeting']))
+        story.append(Paragraph(mar("Dear Sir, / السيد المحترم"), s['greeting']))
         story.append(Spacer(1, 2*mm))
         story.append(Paragraph(
             "We have the pleasure to submit our offer with our best prices in order to have a long term business relationship.",
@@ -261,7 +282,7 @@ class GammaCatalogPDF:
         party_address = d.get('client_address', '') if is_client else d.get('supplier_address', '')
 
         left_data = [
-            ['To / إلى :', party_company or party_name],
+            [mar('To / إلى :'), party_company or party_name],
             ['Phone :', party_phone],
             ['Attention :', party_name],
             ['Mobile :', d.get('client_mobile', party_phone)],
@@ -313,7 +334,7 @@ class GammaCatalogPDF:
         hdr_cols = [
             Paragraph('<b>NO.</b>', s['th']),
             Paragraph('<b>Item Code</b>', s['th']),
-            Paragraph('<b>Description of Goods<br/>وصف البضاعة</b>', s['th']),
+            Paragraph(f'<b>Description of Goods<br/>{ar("وصف البضاعة")}</b>', s['th']),
         ]
         col_widths = [8*mm, 22*mm, self.usable*0.42]
 
@@ -412,7 +433,7 @@ class GammaCatalogPDF:
         rows = []
         sub = d.get('subtotal')
         if sub is not None:
-            rows.append(('Subtotal / المجموع الفرعي', fmt_currency(sub, currency), False))
+            rows.append((mar('Subtotal / المجموع الفرعي'), fmt_currency(sub, currency), False))
 
         for key, en, ar_l in [('shipping_cost','Shipping','الشحن'),('insurance_cost','Insurance','التأمين'),('customs_cost','Customs','الجمارك')]:
             val = d.get(key)
@@ -421,22 +442,22 @@ class GammaCatalogPDF:
 
         tax = d.get('tax_amount')
         if tax and float(tax) > 0:
-            rows.append(('Tax / الضريبة', fmt_currency(tax, currency), False))
+            rows.append((mar('Tax / الضريبة'), fmt_currency(tax, currency), False))
 
         disc = d.get('discount_amount')
         if disc and float(disc) > 0:
-            rows.append(('Discount / الخصم', f'-{fmt_currency(disc, currency)}', False))
+            rows.append((mar('Discount / الخصم'), f'-{fmt_currency(disc, currency)}', False))
 
         total = d.get('total', 0)
-        rows.append(('TOTAL / الإجمالي', fmt_currency(total, currency), True))
+        rows.append((mar('TOTAL / الإجمالي'), fmt_currency(total, currency), True))
 
         if self.doc_type == 'invoice':
             paid = d.get('amount_paid')
             if paid and float(paid) > 0:
-                rows.append(('Amount Paid / المبلغ المدفوع', fmt_currency(paid, currency), False))
+                rows.append((mar('Amount Paid / المبلغ المدفوع'), fmt_currency(paid, currency), False))
             bal = d.get('balance_due')
             if bal and float(bal) > 0:
-                rows.append(('BALANCE DUE / المبلغ المتبقي', fmt_currency(bal, currency), True))
+                rows.append((mar('BALANCE DUE / المبلغ المتبقي'), fmt_currency(bal, currency), True))
 
         if self.doc_type == 'supplier_pi':
             rate = d.get('exchange_rate_to_iqd')
@@ -519,13 +540,13 @@ class GammaCatalogPDF:
         # Structured offer conditions (two-column table)
         offer_rows = []
         if payment_terms:
-            offer_rows.append(('Payment Terms / شروط الدفع', payment_terms))
+            offer_rows.append((mar('Payment Terms / شروط الدفع'), payment_terms))
         if warranty_duration:
-            offer_rows.append(('Warranty / الضمان', warranty_duration))
+            offer_rows.append((mar('Warranty / الضمان'), warranty_duration))
         if delivery_location:
-            offer_rows.append(('Delivery Location / موقع التسليم', delivery_location))
+            offer_rows.append((mar('Delivery Location / موقع التسليم'), delivery_location))
         if delivery_time:
-            offer_rows.append(('Delivery Time / وقت التسليم', delivery_time))
+            offer_rows.append((mar('Delivery Time / وقت التسليم'), delivery_time))
 
         if offer_rows:
             tbl_data = [
@@ -583,9 +604,9 @@ class GammaCatalogPDF:
         s = self.s
         story.append(Spacer(1, 15*mm))
         is_client = self.doc_type in ('offer', 'invoice')
-        left = "Authorized Signature / التوقيع المعتمد"
-        right = ("Client Signature / توقيع العميل" if is_client
-                 else "Supplier Confirmation / تأكيد المورد")
+        left = mar("Authorized Signature / التوقيع المعتمد")
+        right = (mar("Client Signature / توقيع العميل") if is_client
+                 else mar("Supplier Confirmation / تأكيد المورد"))
 
         sig_tbl = Table(
             [[Paragraph(f"<font size='7' color='#888888'>{left}</font>", s['terms']),
