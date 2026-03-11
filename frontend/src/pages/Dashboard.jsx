@@ -75,6 +75,7 @@ const BRANCHES = [
   { key: 'led',    icon: '💡', color: 'bg-amber-50 dark:bg-amber-900/20',  borderColor: 'border-amber-300 dark:border-amber-700' },
   { key: 'heater', icon: '🔥', color: 'bg-red-50 dark:bg-red-900/20',      borderColor: 'border-red-300 dark:border-red-700' },
   { key: 'solar',  icon: '☀️', color: 'bg-blue-50 dark:bg-blue-900/20',    borderColor: 'border-blue-300 dark:border-blue-700' },
+  { key: 'trade',  icon: '🌍', color: 'bg-emerald-50 dark:bg-emerald-900/20', borderColor: 'border-emerald-300 dark:border-emerald-700' },
 ];
 
 /* ───────── main dashboard ───────── */
@@ -124,17 +125,24 @@ export default function Dashboard() {
     led:    ['led', 'light', 'lamp', 'bulb', 'lighting', 'luminaire'],
     heater: ['heater', 'thermocouple', 'element', 'heating', 'thermal', 'sensor'],
     solar:  ['solar', 'ac', 'air conditioner', 'cooling', 'hvac', 'panel'],
+    trade:  ['trade', 'general', 'misc', 'other'],
   };
 
   const categorizeToBranch = (product) => {
+    // Use business_line field if available
+    if (product.business_line && BRANCHES.some(b => b.key === product.business_line)) {
+      return product.business_line;
+    }
     const catName = (product.category_name || '').toLowerCase();
     const prodName = (product.name || '').toLowerCase();
     const searchStr = catName + ' ' + prodName;
     for (const [branch, keywords] of Object.entries(branchKeywords)) {
       if (keywords.some(kw => searchStr.includes(kw))) return branch;
     }
-    return null;
+    return 'trade'; // default uncategorized to Trade
   };
+
+  const [activeBranch, setActiveBranch] = useState('all');
 
   const branchData = {};
   BRANCHES.forEach(b => { branchData[b.key] = { products: 0, value: 0, lowStock: 0 }; });
@@ -189,18 +197,26 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ═══════ Branch KPI Cards ═══════ */}
+      {/* ═══════ Business Line Filter & Branch KPI Cards ═══════ */}
       <div>
-        <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{t('dashboard.branches')}</h2>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">{t('dashboard.branches')}</h2>
+          <div className="flex gap-1">
+            <button onClick={() => setActiveBranch('all')} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${activeBranch === 'all' ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}>All</button>
+            {BRANCHES.map(b => (
+              <button key={b.key} onClick={() => setActiveBranch(b.key)} className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors ${activeBranch === b.key ? 'bg-primary-600 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}>{b.icon}</button>
+            ))}
+          </div>
+        </div>
         {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {[1,2,3].map(i => (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {[1,2,3,4].map(i => (
               <div key={i} className="bg-white dark:bg-gray-800 rounded-xl p-5 border animate-pulse h-40" />
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {BRANCHES.map(b => (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {BRANCHES.filter(b => activeBranch === 'all' || b.key === activeBranch).map(b => (
               <BranchCard
                 key={b.key}
                 name={t(`dashboard.branch_${b.key}`)}
@@ -240,11 +256,11 @@ export default function Dashboard() {
       <div>
         <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-3">{t('dashboard.quick_actions')}</h2>
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-          <QuickAction icon="📄" label={t('dashboard.new_invoice')} onClick={() => navigate('/finance')} />
+          <QuickAction icon="📨" label={t('dashboard.new_lead') || 'New Lead'} onClick={() => navigate('/workflow')} />
+          <QuickAction icon="📄" label={t('dashboard.new_quotation') || 'New Quotation'} onClick={() => navigate('/workflow')} />
           <QuickAction icon="📦" label={t('dashboard.add_product')} onClick={() => navigate('/inventory')} />
-          <QuickAction icon="💳" label={t('dashboard.record_payment')} onClick={() => navigate('/finance')} />
-          <QuickAction icon="💸" label={t('dashboard.new_expense')} onClick={() => navigate('/finance')} />
-          <QuickAction icon="👤" label={t('dashboard.new_employee')} onClick={() => navigate('/hr')} />
+          <QuickAction icon="💰" label={t('dashboard.new_invoice')} onClick={() => navigate('/workflow')} />
+          <QuickAction icon="🚚" label={t('dashboard.new_delivery') || 'New Delivery'} onClick={() => navigate('/workflow')} />
           <QuickAction icon="🤝" label={t('dashboard.new_deal')} onClick={() => navigate('/crm')} />
         </div>
       </div>

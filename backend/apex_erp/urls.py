@@ -19,6 +19,7 @@ urlpatterns = [
     path('api/analytics/', include('analytics.urls')),
     path('api/ecommerce/', include('ecommerce.urls')),
     path('api/ai/', include('ai_engine.urls')),
+    path('api/workflow/', include('workflow.urls')),
     path('api/health/', include('core.urls_health')),
     path('prometheus/', include('django_prometheus.urls')),
 ]
