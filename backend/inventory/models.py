@@ -168,7 +168,10 @@ class DemandForecast(BaseModel):
         ordering = ['-period_start']
 
 
-class BillOfMaterials(BaseModel):
+class ProductBOM(BaseModel):
+    """Bill of Materials for a finished or semi-finished product.
+    Named ProductBOM (not BillOfMaterials) to avoid reverse-accessor clash
+    with manufacturing.BillOfMaterials which inherits the same BaseModel."""
     product = models.OneToOneField(
         Product,
         on_delete=models.CASCADE,
@@ -179,7 +182,8 @@ class BillOfMaterials(BaseModel):
     notes = models.TextField(blank=True)
 
     class Meta:
-        verbose_name_plural = _('bills of materials')
+        verbose_name = _('product BOM')
+        verbose_name_plural = _('product BOMs')
 
     def __str__(self):
         return f"BOM \u2013 {self.product.name} v{self.version}"
@@ -187,7 +191,7 @@ class BillOfMaterials(BaseModel):
 
 class BOMLine(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    bom = models.ForeignKey(BillOfMaterials, on_delete=models.CASCADE, related_name='lines')
+    bom = models.ForeignKey(ProductBOM, on_delete=models.CASCADE, related_name='lines')
     component = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='used_in_boms')
     quantity = models.DecimalField(max_digits=12, decimal_places=4)
     unit_of_measure = models.CharField(max_length=20, default='unit')

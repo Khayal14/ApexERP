@@ -2,7 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import (
     ProductViewSet, WarehouseViewSet, ProductCategoryViewSet,
-    StockLevelViewSet, StockMovementViewSet, BillOfMaterialsViewSet,
+    StockLevelViewSet, StockMovementViewSet, ProductBOMViewSet,
     CompanyCostSettingViewSet, ProductCostViewSet,
     GoodsReceiptViewSet, StockAlertViewSet,
     InterCompanyTransferViewSet, InventoryCountViewSet,
@@ -14,7 +14,7 @@ router.register(r'warehouses',     WarehouseViewSet,            basename='wareho
 router.register(r'categories',     ProductCategoryViewSet,      basename='category')
 router.register(r'stock-levels',   StockLevelViewSet,           basename='stock-level')
 router.register(r'movements',      StockMovementViewSet,        basename='movement')
-router.register(r'bom',            BillOfMaterialsViewSet,      basename='bom')
+router.register(r'bom',            ProductBOMViewSet,      basename='bom')
 router.register(r'cost-settings',  CompanyCostSettingViewSet,   basename='cost-setting')
 router.register(r'product-costs',  ProductCostViewSet,          basename='product-cost')
 router.register(r'goods-receipts', GoodsReceiptViewSet,         basename='goods-receipt')

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Warehouse, ProductCategory, Product, StockLevel, StockMovement,
-    InventoryCount, InventoryCountLine, BillOfMaterials, BOMLine,
+    InventoryCount, InventoryCountLine, ProductBOM, BOMLine,
     CompanyCostSetting, ProductCost, GoodsReceipt, GoodsReceiptLine,
     StockAlert, InterCompanyTransfer, InterCompanyTransferLine,
 )
@@ -80,14 +80,14 @@ class BOMLineSerializer(serializers.ModelSerializer):
         return float(obj.quantity * (obj.component.cost_price or 0))
 
 
-class BillOfMaterialsSerializer(serializers.ModelSerializer):
+class ProductBOMSerializer(serializers.ModelSerializer):
     lines = BOMLineSerializer(many=True, read_only=True)
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_image = serializers.ImageField(source='product.image', read_only=True)
     total_material_cost = serializers.SerializerMethodField()
 
     class Meta:
-        model = BillOfMaterials
+        model = ProductBOM
         fields = '__all__'
 
     def get_total_material_cost(self, obj):
