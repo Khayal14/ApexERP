@@ -3,8 +3,8 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import clsx from 'clsx';
-import logoSrc from '../../assets/logo.svg';
-import logoIconSrc from '../../assets/logo-icon.svg';
+import logoSrc from '../../assets/gamma-logo.jpg';
+import logoIconSrc from '../../assets/gamma-logo.jpg';
 
 /* ─── Navigation items ─── */
 const navItems = [
