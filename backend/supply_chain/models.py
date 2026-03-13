@@ -32,15 +32,27 @@ class Vendor(BaseModel):
 
 class PurchaseOrder(BaseModel):
     STATUS_CHOICES = [
-        ('draft', _('Draft')), ('sent', _('Sent')),
-        ('confirmed', _('Confirmed')), ('received', _('Received')),
-        ('partial', _('Partially Received')), ('cancelled', _('Cancelled')),
+        ('draft',     _('Draft')),
+        ('submitted', _('Submitted')),
+        ('confirmed', _('Confirmed')),
+        ('partial',   _('Partially Received')),
+        ('received',  _('Fully Received')),
+        ('closed',    _('Closed')),
+        ('cancelled', _('Cancelled')),
     ]
     po_number = models.CharField(max_length=50, unique=True)
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='purchase_orders')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     order_date = models.DateField()
     expected_date = models.DateField(null=True, blank=True)
+    supplier_eta_date = models.DateField(
+        null=True, blank=True,
+        help_text='ETA confirmed by supplier',
+    )
+    supplier_reference = models.CharField(
+        max_length=100, blank=True,
+        help_text='Supplier confirmation reference number',
+    )
     received_date = models.DateField(null=True, blank=True)
     subtotal = models.DecimalField(max_digits=18, decimal_places=2, default=0)
     tax_amount = models.DecimalField(max_digits=18, decimal_places=2, default=0)
@@ -48,7 +60,13 @@ class PurchaseOrder(BaseModel):
     currency = models.CharField(max_length=3, default='USD')
     shipping_address = models.TextField(blank=True)
     notes = models.TextField(blank=True)
-    approved_by = models.ForeignKey('core.User', on_delete=models.SET_NULL, null=True, blank=True, related_name='+')
+    approved_by = models.ForeignKey(
+        'core.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='+',
+    )
 
     class Meta:
         ordering = ['-order_date']
@@ -60,6 +78,13 @@ class PurchaseOrder(BaseModel):
 class PurchaseOrderLine(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, related_name='lines')
+    product = models.ForeignKey(
+        'inventory.Product',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='po_lines',
+    )
     product_name = models.CharField(max_length=255)
     product_sku = models.CharField(max_length=50, blank=True)
     description = models.TextField(blank=True)
@@ -85,7 +110,13 @@ class RFQ(BaseModel):
         ('closed', _('Closed')), ('awarded', _('Awarded')),
     ])
     items = models.JSONField(default=list)
-    awarded_vendor = models.ForeignKey(Vendor, on_delete=models.SET_NULL, null=True, blank=True, related_name='awarded_rfqs')
+    awarded_vendor = models.ForeignKey(
+        Vendor,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='awarded_rfqs',
+    )
 
     def __str__(self):
         return f"RFQ-{self.rfq_number}: {self.title}"
@@ -111,7 +142,12 @@ class SupplyChainEvent(BaseModel):
         ('in_transit', _('In Transit')), ('delivered', _('Delivered')),
         ('quality_check', _('Quality Check')), ('stored', _('Stored')),
     ])
-    purchase_order = models.ForeignKey(PurchaseOrder, on_delete=models.CASCADE, null=True, related_name='events')
+    purchase_order = models.ForeignKey(
+        PurchaseOrder,
+        on_delete=models.CASCADE,
+        null=True,
+        related_name='events',
+    )
     description = models.TextField()
     location = models.CharField(max_length=255, blank=True)
     timestamp = models.DateTimeField()

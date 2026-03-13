@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 158" role="img" aria-label="Gamma International Icon">
+  <defs>
+
+    <linearGradient id="gGrad2" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%"   stop-color="#1E3285"/>
+      <stop offset="100%" stop-color="#111A52"/>
+    </linearGradient>
+
+    <linearGradient id="goldGrad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#F7D045"/>
+      <stop offset="35%"  stop-color="#E8B80D"/>
+      <stop offset="100%" stop-color="#C49500"/>
+    </linearGradient>
+
+    <linearGradient id="goldBar2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#E0A800"/>
+      <stop offset="50%"  stop-color="#F5C800"/>
+      <stop offset="100%" stop-color="#E0A800"/>
+    </linearGradient>
+
+    <linearGradient id="swoosh2" x1="0%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%"   stop-color="#1A4BB5"/>
+      <stop offset="100%" stop-color="#2E7AE0"/>
+    </linearGradient>
+
+    <filter id="s2">
+      <feDropShadow dx="1" dy="1.5" stdDeviation="2" flood-color="#00000028"/>
+    </filter>
+
+  </defs>
+
+  <!-- Blue swoosh -->
+  <ellipse
+    cx="92" cy="78"
+    rx="58" ry="36"
+    fill="none"
+    stroke="url(#swoosh2)"
+    stroke-width="7"
+    stroke-linecap="round"
+    transform="rotate(-6 92 78)"
+    filter="url(#s2)"
+  />
+
+  <!-- G letter -->
+  <text
+    x="10" y="130"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="126"
+    font-weight="bold"
+    fill="url(#gGrad2)"
+    filter="url(#s2)"
+  >G</text>
+
+  <!-- I-beam top bar -->
+  <rect x="75" y="18" width="32" height="9" rx="1.5" fill="url(#goldBar2)" filter="url(#s2)"/>
+  <!-- I-beam shaft -->
+  <rect x="85" y="18" width="12" height="76" rx="1" fill="url(#goldGrad2)"/>
+  <!-- I-beam bottom bar -->
+  <rect x="75" y="85" width="32" height="9" rx="1.5" fill="url(#goldBar2)" filter="url(#s2)"/>
+
+</svg>
