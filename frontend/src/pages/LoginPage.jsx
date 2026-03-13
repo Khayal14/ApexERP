@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
-import logoSrc from '../assets/logo.svg';
+import logoSrc from '../assets/gamma-logo.jpg';
 
 export default function LoginPage() {
   const { t } = useTranslation();

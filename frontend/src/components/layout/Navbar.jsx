@@ -2,7 +2,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import { useTheme } from '../../contexts/ThemeContext';
-import logoIconSrc from '../../assets/logo-icon.svg';
+import logoIconSrc from '../../assets/gamma-logo.jpg';
 
 export default function Navbar({ onMenuClick }) {
   const { t, i18n } = useTranslation();
