@@ -10,7 +10,11 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = []
+    dependencies = [
+        ('core', '0001_initial'),
+        ('inventory', '0001_initial'),
+        ('supply_chain', '0001_initial'),
+    ]
 
     operations = [
         migrations.CreateModel(
