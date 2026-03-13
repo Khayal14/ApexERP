@@ -5,14 +5,14 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from .models import (
     Warehouse, ProductCategory, Product, StockLevel, StockMovement,
-    InventoryCount, InventoryCountLine, BillOfMaterials, BOMLine,
+    InventoryCount, InventoryCountLine, ProductBOM, BOMLine,
     CompanyCostSetting, ProductCost, GoodsReceipt, GoodsReceiptLine,
     StockAlert, InterCompanyTransfer, InterCompanyTransferLine,
 )
 from .serializers import (
     WarehouseSerializer, ProductCategorySerializer, ProductSerializer,
     StockLevelSerializer, StockMovementSerializer,
-    InventoryCountSerializer, BillOfMaterialsSerializer, BOMLineSerializer,
+    InventoryCountSerializer, ProductBOMSerializer, BOMLineSerializer,
     CompanyCostSettingSerializer, ProductCostSerializer,
     GoodsReceiptSerializer, GoodsReceiptLineSerializer,
     StockAlertSerializer, InterCompanyTransferSerializer,
@@ -98,9 +98,9 @@ class StockMovementViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
     serializer_class = StockMovementSerializer
 
 
-class BillOfMaterialsViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
-    queryset = BillOfMaterials.objects.select_related('product').prefetch_related('lines__component')
-    serializer_class = BillOfMaterialsSerializer
+class ProductBOMViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = ProductBOM.objects.select_related('product').prefetch_related('lines__component')
+    serializer_class = ProductBOMSerializer
 
     @action(detail=True, methods=['post'])
     def add_line(self, request, pk=None):
