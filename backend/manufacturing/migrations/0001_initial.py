@@ -1,0 +1,235 @@
+import django.db.models.deletion
+import uuid
+from django.conf import settings
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    initial = True
+
+    dependencies = [
+        ('core', '0001_initial'),
+        ('inventory', '0001_initial'),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name='BillOfMaterials',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('metadata', models.JSONField(blank=True, default=dict)),
+                ('name', models.CharField(max_length=255)),
+                ('version', models.CharField(default='1.0', max_length=20)),
+                ('is_default', models.BooleanField(default=True)),
+                ('total_cost', models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                ('notes', models.TextField(blank=True)),
+                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='billofmaterials_set', to='core.company')),
+                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='billofmaterials_created', to=settings.AUTH_USER_MODEL)),
+                ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='billofmaterials_updated', to=settings.AUTH_USER_MODEL)),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='boms', to='inventory.product')),
+            ],
+            options={
+                'verbose_name': 'Bill of Materials',
+                'verbose_name_plural': 'Bills of Materials',
+                'ordering': ['-created_at'],
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='BOMLine',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('quantity', models.DecimalField(decimal_places=3, max_digits=12)),
+                ('unit_cost', models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                ('total_cost', models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                ('scrap_rate', models.DecimalField(decimal_places=2, default=0, max_digits=5)),
+                ('notes', models.CharField(blank=True, max_length=255)),
+                ('bom', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='lines', to='manufacturing.billofmaterials')),
+                ('component', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='bom_usages', to='inventory.product')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='WorkCenter',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('metadata', models.JSONField(blank=True, default=dict)),
+                ('name', models.CharField(max_length=255)),
+                ('code', models.CharField(max_length=20)),
+                ('capacity', models.IntegerField(default=1)),
+                ('cost_per_hour', models.DecimalField(decimal_places=2, default=0, max_digits=10)),
+                ('efficiency', models.DecimalField(decimal_places=2, default=100, max_digits=5)),
+                ('is_available', models.BooleanField(default=True)),
+                ('iot_device_id', models.CharField(blank=True, help_text='IoT device ID for monitoring', max_length=100)),
+                ('maintenance_schedule', models.JSONField(default=dict)),
+                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='workcenter_set', to='core.company')),
+                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='workcenter_created', to=settings.AUTH_USER_MODEL)),
+                ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='workcenter_updated', to=settings.AUTH_USER_MODEL)),
+            ],
+            options={
+                'ordering': ['-created_at'],
+                'abstract': False,
+            },
+        ),
+        migrations.CreateModel(
+            name='ProductionOrder',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('metadata', models.JSONField(blank=True, default=dict)),
+                ('order_number', models.CharField(max_length=50, unique=True)),
+                ('quantity', models.DecimalField(decimal_places=3, max_digits=12)),
+                ('completed_quantity', models.DecimalField(decimal_places=3, default=0, max_digits=12)),
+                ('status', models.CharField(
+                    choices=[
+                        ('draft', 'Draft'),
+                        ('confirmed', 'Confirmed'),
+                        ('in_progress', 'In Progress'),
+                        ('completed', 'Completed'),
+                        ('cancelled', 'Cancelled'),
+                    ],
+                    default='draft',
+                    max_length=20,
+                )),
+                ('priority', models.CharField(
+                    choices=[('low', 'Low'), ('normal', 'Normal'), ('high', 'High'), ('urgent', 'Urgent')],
+                    default='normal',
+                    max_length=10,
+                )),
+                ('planned_start', models.DateTimeField(blank=True, null=True)),
+                ('planned_end', models.DateTimeField(blank=True, null=True)),
+                ('actual_start', models.DateTimeField(blank=True, null=True)),
+                ('actual_end', models.DateTimeField(blank=True, null=True)),
+                ('estimated_cost', models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                ('actual_cost', models.DecimalField(decimal_places=2, default=0, max_digits=18)),
+                ('notes', models.TextField(blank=True)),
+                ('bom', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='manufacturing.billofmaterials')),
+                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='productionorder_set', to='core.company')),
+                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='productionorder_created', to=settings.AUTH_USER_MODEL)),
+                ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='productionorder_updated', to=settings.AUTH_USER_MODEL)),
+                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='production_orders', to='inventory.product')),
+                ('warehouse', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='inventory.warehouse')),
+            ],
+            options={
+                'ordering': ['-created_at'],
+            },
+        ),
+        migrations.CreateModel(
+            name='WorkOrder',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('metadata', models.JSONField(blank=True, default=dict)),
+                ('name', models.CharField(max_length=255)),
+                ('sequence', models.IntegerField(default=0)),
+                ('duration_expected', models.DecimalField(decimal_places=2, help_text='Expected hours', max_digits=8)),
+                ('duration_actual', models.DecimalField(decimal_places=2, default=0, max_digits=8)),
+                ('status', models.CharField(
+                    choices=[
+                        ('pending', 'Pending'),
+                        ('in_progress', 'In Progress'),
+                        ('completed', 'Completed'),
+                        ('cancelled', 'Cancelled'),
+                    ],
+                    default='pending',
+                    max_length=20,
+                )),
+                ('started_at', models.DateTimeField(blank=True, null=True)),
+                ('completed_at', models.DateTimeField(blank=True, null=True)),
+                ('assigned_to', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='workorder_set', to='core.company')),
+                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='workorder_created', to=settings.AUTH_USER_MODEL)),
+                ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='workorder_updated', to=settings.AUTH_USER_MODEL)),
+                ('production_order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='work_orders', to='manufacturing.productionorder')),
+                ('work_center', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='work_orders', to='manufacturing.workcenter')),
+            ],
+            options={
+                'ordering': ['sequence'],
+            },
+        ),
+        migrations.CreateModel(
+            name='QualityCheck',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('metadata', models.JSONField(blank=True, default=dict)),
+                ('name', models.CharField(max_length=255)),
+                ('check_type', models.CharField(
+                    choices=[
+                        ('visual', 'Visual Inspection'),
+                        ('measurement', 'Measurement'),
+                        ('functional', 'Functional Test'),
+                        ('sample', 'Sample Test'),
+                    ],
+                    max_length=50,
+                )),
+                ('specification', models.TextField(blank=True)),
+                ('result', models.CharField(
+                    choices=[
+                        ('pending', 'Pending'),
+                        ('pass', 'Pass'),
+                        ('fail', 'Fail'),
+                        ('conditional', 'Conditional Pass'),
+                    ],
+                    default='pending',
+                    max_length=20,
+                )),
+                ('measured_value', models.CharField(blank=True, max_length=100)),
+                ('inspected_at', models.DateTimeField(blank=True, null=True)),
+                ('notes', models.TextField(blank=True)),
+                ('images', models.JSONField(default=list)),
+                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='qualitycheck_set', to='core.company')),
+                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='qualitycheck_created', to=settings.AUTH_USER_MODEL)),
+                ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='qualitycheck_updated', to=settings.AUTH_USER_MODEL)),
+                ('inspector', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to=settings.AUTH_USER_MODEL)),
+                ('production_order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='quality_checks', to='manufacturing.productionorder')),
+            ],
+            options={
+                'ordering': ['-created_at'],
+            },
+        ),
+        migrations.CreateModel(
+            name='MaintenanceRecord',
+            fields=[
+                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ('created_at', models.DateTimeField(auto_now_add=True)),
+                ('updated_at', models.DateTimeField(auto_now=True)),
+                ('is_active', models.BooleanField(default=True)),
+                ('metadata', models.JSONField(blank=True, default=dict)),
+                ('maintenance_type', models.CharField(
+                    choices=[('preventive', 'Preventive'), ('corrective', 'Corrective'), ('predictive', 'Predictive')],
+                    max_length=50,
+                )),
+                ('description', models.TextField()),
+                ('scheduled_date', models.DateField()),
+                ('completed_date', models.DateField(blank=True, null=True)),
+                ('cost', models.DecimalField(decimal_places=2, default=0, max_digits=12)),
+                ('downtime_hours', models.DecimalField(decimal_places=2, default=0, max_digits=8)),
+                ('status', models.CharField(
+                    choices=[('scheduled', 'Scheduled'), ('in_progress', 'In Progress'), ('completed', 'Completed')],
+                    default='scheduled',
+                    max_length=20,
+                )),
+                ('company', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='maintenancerecord_set', to='core.company')),
+                ('created_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='maintenancerecord_created', to=settings.AUTH_USER_MODEL)),
+                ('updated_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='maintenancerecord_updated', to=settings.AUTH_USER_MODEL)),
+                ('work_center', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='maintenance_records', to='manufacturing.workcenter')),
+            ],
+            options={
+                'ordering': ['-created_at'],
+                'abstract': False,
+            },
+        ),
+    ]
