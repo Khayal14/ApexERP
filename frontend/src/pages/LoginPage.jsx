@@ -5,6 +5,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import Button from '../components/common/Button';
 import toast from 'react-hot-toast';
+import logoSrc from '../assets/logo.svg';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -38,9 +39,13 @@ export default function LoginPage() {
       </div>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-primary-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold mx-auto mb-4">A</div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">ApexERP</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">{t('app.tagline')}</p>
+          <img
+            src={logoSrc}
+            alt="Gamma International"
+            className="mx-auto mb-2"
+            style={{ width: '200px', height: 'auto' }}
+          />
+          <p className="text-gray-500 dark:text-gray-400 mt-1 text-sm">{t('app.tagline')}</p>
         </div>
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-200 dark:border-gray-700">
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-6">{t('auth.login')}</h2>

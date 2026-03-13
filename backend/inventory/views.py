@@ -1,133 +1,251 @@
-from rest_framework import viewsets, permissions, status
+from django.utils import timezone
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Sum, Count, F, Q
-from django.utils import timezone
-from core.permissions import IsSameCompany
+from rest_framework.permissions import IsAuthenticated
 from .models import (
     Warehouse, ProductCategory, Product, StockLevel, StockMovement,
-    InventoryCount, InventoryCountLine, DemandForecast
+    InventoryCount, InventoryCountLine, BillOfMaterials, BOMLine,
+    CompanyCostSetting, ProductCost, GoodsReceipt, GoodsReceiptLine,
+    StockAlert, InterCompanyTransfer, InterCompanyTransferLine,
 )
 from .serializers import (
     WarehouseSerializer, ProductCategorySerializer, ProductSerializer,
     StockLevelSerializer, StockMovementSerializer,
-    InventoryCountSerializer, DemandForecastSerializer
+    InventoryCountSerializer, BillOfMaterialsSerializer, BOMLineSerializer,
+    CompanyCostSettingSerializer, ProductCostSerializer,
+    GoodsReceiptSerializer, GoodsReceiptLineSerializer,
+    StockAlertSerializer, InterCompanyTransferSerializer,
+    InterCompanyTransferLineSerializer,
 )
 
+
 class CompanyFilterMixin:
+    """Filter all querysets by the user's active company."""
+    permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
         qs = super().get_queryset()
-        if hasattr(qs.model, 'company'):
-            return qs.filter(company=self.request.user.company)
+        company = getattr(self.request.user, 'company', None)
+        if company:
+            return qs.filter(company=company)
+        return qs.none()
+
+
+class ProductViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = Product.objects.select_related('category').prefetch_related('stock_levels')
+    serializer_class = ProductSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        role = self.request.query_params.get('role')
+        field = self.request.query_params.get('business_field')
+        if role:
+            qs = qs.filter(product_role=role)
+        if field:
+            qs = qs.filter(business_field=field)
         return qs
-    def perform_create(self, serializer):
-        serializer.save(company=self.request.user.company, created_by=self.request.user, updated_by=self.request.user)
+
+    @action(detail=True, methods=['post'])
+    def calculate_bom_requirements(self, request, pk=None):
+        """Given an order quantity, return required raw materials."""
+        product = self.get_object()
+        order_qty = float(request.data.get('quantity', 1))
+        if not hasattr(product, 'bom'):
+            return Response({'error': 'No BOM configured for this product'}, status=400)
+        requirements = []
+        for line in product.bom.lines.select_related('component'):
+            needed = line.quantity * order_qty
+            stock = sum(sl.quantity for sl in line.component.stock_levels.all())
+            requirements.append({
+                'component_id':   str(line.component.id),
+                'component_name': line.component.name,
+                'component_sku':  line.component.sku,
+                'component_role': line.component.product_role,
+                'required_qty':   needed,
+                'on_hand_qty':    float(stock),
+                'shortfall':      max(0, needed - float(stock)),
+                'unit':           line.unit_of_measure,
+            })
+        return Response({'product': product.name, 'order_qty': order_qty, 'requirements': requirements})
+
 
 class WarehouseViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
     queryset = Warehouse.objects.all()
     serializer_class = WarehouseSerializer
-    permission_classes = [permissions.IsAuthenticated, IsSameCompany]
+
 
 class ProductCategoryViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
     queryset = ProductCategory.objects.all()
     serializer_class = ProductCategorySerializer
-    permission_classes = [permissions.IsAuthenticated]
 
-class ProductViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated, IsSameCompany]
-    filterset_fields = ['product_type', 'category', 'is_sellable']
-    search_fields = ['name', 'sku', 'barcode']
 
-    @action(detail=False, methods=['get'])
-    def low_stock(self, request):
-        products = self.get_queryset().filter(stock_levels__quantity__lte=F('reorder_point')).distinct()
-        return Response(ProductSerializer(products, many=True).data)
-
-    @action(detail=False, methods=['get'])
-    def dashboard(self, request):
-        qs = self.get_queryset()
-        return Response({
-            'total_products': qs.count(),
-            'total_value': float(StockLevel.objects.filter(
-                product__company=request.user.company
-            ).aggregate(total=Sum(F('quantity') * F('product__cost_price')))['total'] or 0),
-            'low_stock_count': qs.filter(stock_levels__quantity__lte=F('reorder_point')).distinct().count(),
-            'by_category': list(qs.values('category__name').annotate(count=Count('id'))),
-        })
-
-    @action(detail=True, methods=['get'])
-    def stock_by_warehouse(self, request, pk=None):
-        product = self.get_object()
-        return Response(StockLevelSerializer(product.stock_levels.all(), many=True).data)
-
-    @action(detail=True, methods=['get'])
-    def movement_history(self, request, pk=None):
-        product = self.get_object()
-        return Response(StockMovementSerializer(product.movements.all()[:50], many=True).data)
-
-class StockLevelViewSet(viewsets.ModelViewSet):
-    queryset = StockLevel.objects.all()
+class StockLevelViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = StockLevel.objects.select_related('product', 'warehouse').all()
     serializer_class = StockLevelSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filterset_fields = ['product', 'warehouse']
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # StockLevel doesn't have company FK directly — filter through product
+        company = getattr(self.request.user, 'company', None)
+        if company:
+            qs = StockLevel.objects.filter(product__company=company).select_related('product', 'warehouse')
+        return qs
+
 
 class StockMovementViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
-    queryset = StockMovement.objects.all()
+    queryset = StockMovement.objects.select_related('product', 'source_warehouse', 'destination_warehouse')
     serializer_class = StockMovementSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filterset_fields = ['product', 'movement_type']
 
-    def perform_create(self, serializer):
-        movement = serializer.save(
-            company=self.request.user.company, created_by=self.request.user, updated_by=self.request.user
-        )
-        if movement.movement_type == 'in' and movement.destination_warehouse:
-            sl, _ = StockLevel.objects.get_or_create(product=movement.product, warehouse=movement.destination_warehouse)
-            sl.quantity += movement.quantity
-            sl.save()
-        elif movement.movement_type == 'out' and movement.source_warehouse:
-            sl, _ = StockLevel.objects.get_or_create(product=movement.product, warehouse=movement.source_warehouse)
-            sl.quantity -= movement.quantity
-            sl.save()
-        elif movement.movement_type == 'transfer':
-            if movement.source_warehouse:
-                sl_src, _ = StockLevel.objects.get_or_create(product=movement.product, warehouse=movement.source_warehouse)
-                sl_src.quantity -= movement.quantity
-                sl_src.save()
-            if movement.destination_warehouse:
-                sl_dst, _ = StockLevel.objects.get_or_create(product=movement.product, warehouse=movement.destination_warehouse)
-                sl_dst.quantity += movement.quantity
-                sl_dst.save()
 
-class InventoryCountViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
-    queryset = InventoryCount.objects.all()
-    serializer_class = InventoryCountSerializer
-    permission_classes = [permissions.IsAuthenticated]
+class BillOfMaterialsViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = BillOfMaterials.objects.select_related('product').prefetch_related('lines__component')
+    serializer_class = BillOfMaterialsSerializer
 
     @action(detail=True, methods=['post'])
-    def finalize(self, request, pk=None):
-        count = self.get_object()
-        for line in count.lines.all():
-            if line.counted_quantity is not None and line.variance != 0:
-                sl = StockLevel.objects.get(product=line.product, warehouse=count.warehouse)
-                sl.quantity = line.counted_quantity
-                sl.last_counted = timezone.now()
-                sl.save()
-        count.status = 'completed'
-        count.save()
-        return Response({'status': 'Count finalized'})
+    def add_line(self, request, pk=None):
+        bom = self.get_object()
+        data = request.data.copy()
+        data['bom'] = bom.id
+        ser = BOMLineSerializer(data=data)
+        if ser.is_valid():
+            ser.save()
+            return Response(ser.data, status=201)
+        return Response(ser.errors, status=400)
 
-class DemandForecastViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
-    queryset = DemandForecast.objects.all()
-    serializer_class = DemandForecastSerializer
-    permission_classes = [permissions.IsAuthenticated]
-    filterset_fields = ['product']
+    @action(detail=True, methods=['delete'], url_path='remove_line/(?P<line_id>[^/.]+)')
+    def remove_line(self, request, pk=None, line_id=None):
+        bom = self.get_object()
+        line = BOMLine.objects.filter(id=line_id, bom=bom).first()
+        if not line:
+            return Response({'error': 'Line not found'}, status=404)
+        line.delete()
+        return Response(status=204)
+
+
+class CompanyCostSettingViewSet(viewsets.ModelViewSet):
+    queryset = CompanyCostSetting.objects.all()
+    serializer_class = CompanyCostSettingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        company = getattr(self.request.user, 'company', None)
+        if company:
+            return CompanyCostSetting.objects.filter(company=company)
+        return CompanyCostSetting.objects.none()
+
+
+class ProductCostViewSet(viewsets.ModelViewSet):
+    queryset = ProductCost.objects.select_related('product')
+    serializer_class = ProductCostSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        company = getattr(self.request.user, 'company', None)
+        if company:
+            return ProductCost.objects.filter(product__company=company).select_related('product')
+        return ProductCost.objects.none()
+
+    @action(detail=True, methods=['post'])
+    def recalculate(self, request, pk=None):
+        cost = self.get_object()
+        cost.recalculate()
+        return Response(ProductCostSerializer(cost).data)
 
     @action(detail=False, methods=['post'])
-    def generate(self, request):
-        product_id = request.data.get('product_id')
-        from ai_engine.tasks import generate_demand_forecast
-        generate_demand_forecast.delay(str(product_id), str(request.user.company_id))
-        return Response({'status': 'Forecast generation started'})
+    def recalculate_all(self, request):
+        company = getattr(request.user, 'company', None)
+        updated = 0
+        for cost in ProductCost.objects.filter(product__company=company):
+            cost.recalculate()
+            updated += 1
+        return Response({'updated': updated})
+
+
+class GoodsReceiptViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = GoodsReceipt.objects.select_related('purchase_order', 'warehouse').prefetch_related('lines__product')
+    serializer_class = GoodsReceiptSerializer
+
+    @action(detail=True, methods=['post'])
+    def confirm(self, request, pk=None):
+        receipt = self.get_object()
+        if receipt.status != 'draft':
+            return Response({'error': f'Cannot confirm a receipt with status: {receipt.status}'}, status=400)
+        receipt.confirm()
+        return Response(GoodsReceiptSerializer(receipt).data)
+
+    @action(detail=True, methods=['post'])
+    def cancel(self, request, pk=None):
+        receipt = self.get_object()
+        if receipt.status == 'confirmed':
+            return Response({'error': 'Cannot cancel a confirmed receipt'}, status=400)
+        receipt.status = 'cancelled'
+        receipt.save()
+        return Response(GoodsReceiptSerializer(receipt).data)
+
+
+class StockAlertViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = StockAlert.objects.select_related('product', 'warehouse')
+    serializer_class = StockAlertSerializer
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get('unacknowledged'):
+            qs = qs.filter(is_acknowledged=False)
+        return qs
+
+    @action(detail=True, methods=['post'])
+    def acknowledge(self, request, pk=None):
+        alert = self.get_object()
+        alert.is_acknowledged = True
+        alert.acknowledged_by = request.user
+        alert.acknowledged_at = timezone.now()
+        alert.save()
+        return Response(StockAlertSerializer(alert).data)
+
+    @action(detail=False, methods=['post'])
+    def acknowledge_all(self, request):
+        company = getattr(request.user, 'company', None)
+        updated = StockAlert.objects.filter(company=company, is_acknowledged=False).update(
+            is_acknowledged=True,
+            acknowledged_by=request.user,
+            acknowledged_at=timezone.now(),
+        )
+        return Response({'acknowledged': updated})
+
+
+class InterCompanyTransferViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = InterCompanyTransfer.objects.select_related(
+        'from_company', 'to_company', 'from_warehouse', 'to_warehouse'
+    ).prefetch_related('lines__product')
+    serializer_class = InterCompanyTransferSerializer
+
+    @action(detail=True, methods=['post'])
+    def dispatch(self, request, pk=None):
+        transfer = self.get_object()
+        if transfer.status != 'draft':
+            return Response({'error': f'Cannot dispatch from status: {transfer.status}'}, status=400)
+        transfer.dispatch()
+        return Response(InterCompanyTransferSerializer(transfer).data)
+
+    @action(detail=True, methods=['post'])
+    def mark_in_transit(self, request, pk=None):
+        transfer = self.get_object()
+        if transfer.status != 'dispatched':
+            return Response({'error': 'Transfer must be dispatched first'}, status=400)
+        transfer.status = 'in_transit'
+        transfer.save()
+        return Response(InterCompanyTransferSerializer(transfer).data)
+
+    @action(detail=True, methods=['post'])
+    def receive(self, request, pk=None):
+        transfer = self.get_object()
+        if transfer.status not in ('dispatched', 'in_transit'):
+            return Response({'error': f'Cannot receive from status: {transfer.status}'}, status=400)
+        transfer.receive()
+        return Response(InterCompanyTransferSerializer(transfer).data)
+
+
+class InventoryCountViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
+    queryset = InventoryCount.objects.select_related('warehouse').prefetch_related('lines__product')
+    serializer_class = InventoryCountSerializer

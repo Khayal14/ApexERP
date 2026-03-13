@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 235" role="img" aria-label="Gamma International">
+  <defs>
+
+    <!-- Navy gradient for the G -->
+    <linearGradient id="gGrad" x1="0%" y1="0%" x2="60%" y2="100%">
+      <stop offset="0%"   stop-color="#1E3285"/>
+      <stop offset="100%" stop-color="#111A52"/>
+    </linearGradient>
+
+    <!-- Gold gradient for the I-beam (subtle top-to-bottom shine) -->
+    <linearGradient id="goldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#F7D045"/>
+      <stop offset="35%"  stop-color="#E8B80D"/>
+      <stop offset="100%" stop-color="#C49500"/>
+    </linearGradient>
+
+    <!-- Horizontal gold gradient for I-beam bars -->
+    <linearGradient id="goldBarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#E0A800"/>
+      <stop offset="50%"  stop-color="#F5C800"/>
+      <stop offset="100%" stop-color="#E0A800"/>
+    </linearGradient>
+
+    <!-- Blue gradient for the swoosh -->
+    <linearGradient id="swooshGrad" x1="0%" y1="0%" x2="70%" y2="100%">
+      <stop offset="0%"   stop-color="#1A4BB5"/>
+      <stop offset="100%" stop-color="#2E7AE0"/>
+    </linearGradient>
+
+    <!-- Soft drop shadow for depth -->
+    <filter id="gShadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="1" dy="2" stdDeviation="2.5" flood-color="#00000030"/>
+    </filter>
+    <filter id="iShadow" x="-10%" y="-5%" width="130%" height="115%">
+      <feDropShadow dx="1" dy="1.5" stdDeviation="2" flood-color="#00000025"/>
+    </filter>
+    <filter id="swooshShadow" x="-5%" y="-5%" width="115%" height="115%">
+      <feDropShadow dx="1" dy="2" stdDeviation="3" flood-color="#00000030"/>
+    </filter>
+
+  </defs>
+
+  <!-- ── Blue elliptical swoosh ──
+       Drawn first so the G sits on top of its left arc -->
+  <ellipse
+    cx="163" cy="87"
+    rx="100" ry="62"
+    fill="none"
+    stroke="url(#swooshGrad)"
+    stroke-width="12"
+    stroke-linecap="round"
+    transform="rotate(-6 163 87)"
+    filter="url(#swooshShadow)"
+  />
+
+  <!-- ── Large serif G (dark navy) ── -->
+  <text
+    x="20" y="153"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="143"
+    font-weight="bold"
+    fill="url(#gGrad)"
+    filter="url(#gShadow)"
+  >G</text>
+
+  <!-- ── Gold I-beam ──
+       Top cap | vertical shaft | bottom cap -->
+  <!-- Top horizontal bar -->
+  <rect x="133" y="23" width="54" height="15" rx="2" ry="2"
+        fill="url(#goldBarGrad)" filter="url(#iShadow)"/>
+  <!-- Vertical shaft -->
+  <rect x="150" y="23" width="19" height="132" rx="1"
+        fill="url(#goldGrad)"/>
+  <!-- Bottom horizontal bar -->
+  <rect x="133" y="140" width="54" height="15" rx="2" ry="2"
+        fill="url(#goldBarGrad)" filter="url(#iShadow)"/>
+
+  <!-- ── Subtle separator line ── -->
+  <line x1="52" y1="193" x2="228" y2="193"
+        stroke="#162267" stroke-width="1" opacity="0.18"/>
+
+  <!-- ── "Gamma International" wordmark ── -->
+  <text
+    x="140" y="216"
+    text-anchor="middle"
+    font-family="Arial, 'Helvetica Neue', Helvetica, sans-serif"
+    font-size="19.5"
+    font-weight="500"
+    fill="#162267"
+    letter-spacing="1.2"
+  >Gamma International</text>
+
+</svg>
