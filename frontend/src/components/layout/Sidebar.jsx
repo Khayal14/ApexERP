@@ -3,6 +3,8 @@ import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../contexts/AuthContext';
 import clsx from 'clsx';
+import logoSrc from '../../assets/logo.svg';
+import logoIconSrc from '../../assets/logo-icon.svg';
 
 /* ─── Navigation items ─── */
 const navItems = [
@@ -196,7 +198,16 @@ export default function Sidebar({ isOpen, onClose }) {
       '[dir=rtl] &:left-auto [dir=rtl] &:right-0'
     )}>
 
-      {/* ── Branch Switcher (replaces old company branding) ── */}
+      {/* ── Logo header ── */}
+      <div className="flex items-center justify-center px-4 py-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+        <img
+          src={logoSrc}
+          alt="Gamma International"
+          className="w-full max-w-[148px] h-auto"
+        />
+      </div>
+
+      {/* ── Branch Switcher ── */}
       <BranchSwitcher />
 
       {/* ── Navigation ── */}
@@ -224,8 +235,9 @@ export default function Sidebar({ isOpen, onClose }) {
       </nav>
 
       {/* ── Footer ── */}
-      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700">
-        <p className="text-xs text-gray-400 dark:text-gray-500 text-center">Powered by ApexERP v1.0</p>
+      <div className="px-4 py-3 border-t border-gray-200 dark:border-gray-700 flex items-center justify-center gap-2">
+        <img src={logoIconSrc} alt="" className="w-5 h-5 opacity-40" />
+        <p className="text-xs text-gray-400 dark:text-gray-500">Gamma International ERP</p>
       </div>
     </aside>
   );
