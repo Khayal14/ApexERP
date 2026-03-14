@@ -85,12 +85,11 @@ class StockLevelViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
     serializer_class = StockLevelSerializer
 
     def get_queryset(self):
-        qs = super().get_queryset()
-        # StockLevel doesn't have company FK directly — filter through product
+        # StockLevel has no company FK; bypass CompanyFilterMixin, filter via product
         company = getattr(self.request.user, 'company', None)
         if company:
-            qs = StockLevel.objects.filter(product__company=company).select_related('product', 'warehouse')
-        return qs
+            return StockLevel.objects.filter(product__company=company).select_related('product', 'warehouse')
+        return StockLevel.objects.none()
 
 
 class StockMovementViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
@@ -220,8 +219,8 @@ class InterCompanyTransferViewSet(CompanyFilterMixin, viewsets.ModelViewSet):
     ).prefetch_related('lines__product')
     serializer_class = InterCompanyTransferSerializer
 
-    @action(detail=True, methods=['post'])
-    def dispatch(self, request, pk=None):
+    @action(detail=True, methods=['post'], url_path='do-dispatch')
+    def do_dispatch(self, request, pk=None):
         transfer = self.get_object()
         if transfer.status != 'draft':
             return Response({'error': f'Cannot dispatch from status: {transfer.status}'}, status=400)
